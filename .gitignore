@@ -1,6 +1,2 @@
 .DS_Store
 .claude/
-
-# Fichiers COROS réels — décision en attente sur leur publication (dépôt public).
-# Ils serviront de jeu de tests aux parseurs.
-*.csv
