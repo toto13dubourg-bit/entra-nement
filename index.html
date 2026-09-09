@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Entraînement</title>
+<meta name="theme-color" content="#0b1220">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icones/icone-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Entraînement">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<header>
+  <h1>Entraînement</h1>
+  <p class="version">version <span id="version">—</span></p>
+</header>
+
+<main>
+  <section class="carte">
+    <h2>Diagnostic d'installation</h2>
+    <p class="aide">Cette page vérifie que la chaîne technique fonctionne. Elle sera remplacée par l'application.</p>
+    <ul id="diagnostic" class="diagnostic"></ul>
+  </section>
+
+  <section class="carte" id="bloc-stockage">
+    <h2>Test de persistance</h2>
+    <p class="aide">Écris quelque chose, ferme complètement l'app, rouvre-la. Le texte doit être encore là.</p>
+    <input id="memo" type="text" placeholder="Tape n'importe quoi ici" autocomplete="off">
+    <p class="aide" id="memo-etat">—</p>
+  </section>
+</main>
+
+<script src="./app.js"></script>
+</body>
+</html>
