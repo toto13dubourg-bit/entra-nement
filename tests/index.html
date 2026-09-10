@@ -36,6 +36,9 @@
 <h2>Phases, progression et stockage</h2>
 <ul id="moteur"></ul>
 
+<h2>Export coach</h2>
+<ul id="export"></ul>
+
 <script type="module">
   import { executer } from "./executer.js";
   const sections = [];
@@ -43,6 +46,7 @@
     ["./tests-coros.js", "coros"],
     ["./tests-hevy.js", "hevy"],
     ["./tests-moteur.js", "moteur"],
+    ["./tests-export.js", "export"],
   ]) {
     await import(module);
     sections.push(await executer(document.getElementById(cible)));
