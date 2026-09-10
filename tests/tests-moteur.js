@@ -103,6 +103,28 @@ test("Phases — un exercice dont le matériel n'existe pas est refusé", () => 
   egal(faux.autorise, false, "exercice absent du catalogue");
 });
 
+test("Plan de course — la semaine type prend le relais après la fin du plan daté", async () => {
+  const { coursePrevue } = await import("../moteur/phases.js");
+  // Le plan daté s'arrête au 10 km du 18/10.
+  egal(coursePrevue("2026-09-13").titre, "SL réduite 1h30", "dans le plan daté");
+  egal(coursePrevue("2026-09-11").origine, "plan", "issue du plan");
+
+  // Après, c'est la semaine type : EF mardi, qualité jeudi, SL dimanche.
+  egal(coursePrevue("2026-10-20").type, "ef", "mardi 20/10");
+  egal(coursePrevue("2026-10-22").type, "qualite", "jeudi 22/10");
+  egal(coursePrevue("2026-10-25").type, "sortie-longue", "dimanche 25/10");
+  egal(coursePrevue("2026-10-21"), null, "mercredi : rien de prévu");
+  egal(coursePrevue("2026-10-20").origine, "gabarit", "issue de la semaine type");
+});
+
+test("Plan de course — la semaine type n'ajoute rien à une semaine déjà planifiée", async () => {
+  const { coursePrevue } = await import("../moteur/phases.js");
+  // Mardi 08/09 et jeudi 10/09 ne sont pas dans le plan daté. La semaine type
+  // ne doit pas y greffer une course : la semaine en compterait cinq.
+  egal(coursePrevue("2026-09-08"), null, "mardi 08/09");
+  egal(coursePrevue("2026-09-10"), null, "jeudi 10/09");
+});
+
 test("Phases — jours restants avant la prochaine course", () => {
   const p = prochaineCourse("2026-09-10");
   egal(p.course.id, "trail-54", "prochaine course");

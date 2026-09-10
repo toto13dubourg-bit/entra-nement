@@ -4,10 +4,54 @@
 // les délais tels qu'ils sont écrits dans config/calendrier.js. Quand il
 // refuse, il dit toujours pourquoi.
 
-import { PHASES, COURSES, INTERDITS, TYPES_QUALITE } from "../config/calendrier.js";
+import {
+  PHASES,
+  COURSES,
+  INTERDITS,
+  TYPES_QUALITE,
+  SEANCES_COURSE_PREVUES,
+} from "../config/calendrier.js";
+import { SEMAINE_TYPE } from "../config/programme.js";
 import { parId, MATERIEL } from "../config/catalogue-exercices.js";
 
 const jour = (iso) => String(iso).slice(0, 10);
+
+const JOURS_SEMAINE = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+
+const LIBELLES_COURSE = {
+  ef: "Endurance fondamentale",
+  qualite: "Séance de qualité",
+  "sortie-longue": "Sortie longue",
+};
+
+const FIN_DU_PLAN_DATE = SEANCES_COURSE_PREVUES.map((p) => p.date).sort().slice(-1)[0] || "";
+
+// La séance de course d'un jour : celle du plan daté tant qu'il en reste,
+// puis celle que la semaine type prévoit. Sans ce relais, l'application
+// n'aurait plus rien à afficher passé la dernière date du plan.
+//
+// Le relais ne démarre qu'APRÈS la fin du plan : à l'intérieur, une semaine
+// où seules deux séances sur trois sont datées ne doit pas voir la semaine
+// type lui en ajouter une troisième par-dessus.
+export function coursePrevue(date) {
+  const d = jour(date);
+
+  const datee = SEANCES_COURSE_PREVUES.find((p) => p.date === d);
+  if (datee) return { ...datee, origine: "plan" };
+  if (d <= FIN_DU_PLAN_DATE) return null;
+
+  const nomJour = JOURS_SEMAINE[(new Date(d + "T12:00:00Z").getUTCDay() + 6) % 7];
+  const type = SEMAINE_TYPE[nomJour]?.course;
+  if (!type) return null;
+
+  return {
+    date: d,
+    type,
+    titre: LIBELLES_COURSE[type] || type,
+    detail: "D'après ta semaine type — contenu à définir",
+    origine: "gabarit",
+  };
+}
 
 export function phaseDu(date) {
   const d = jour(date);

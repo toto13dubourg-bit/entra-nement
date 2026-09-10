@@ -1,9 +1,9 @@
 // ÉCRAN « MA SEMAINE » — course et salle mêlées dans l'ordre des jours.
 
 import { html, JOURS, jourCourt, decalerJours, duree, message } from "./base.js";
-import { SEANCES_COURSE_PREVUES, TYPES_QUALITE } from "../config/calendrier.js";
+import { TYPES_QUALITE } from "../config/calendrier.js";
 import { SEMAINE_TYPE, SEANCES } from "../config/programme.js";
-import { salleAutorisee, versionSeanceC, verifierDelai } from "../moteur/phases.js";
+import { salleAutorisee, versionSeanceC, verifierDelai, coursePrevue } from "../moteur/phases.js";
 import { seanceAffichable } from "../moteur/application.js";
 import { semaineDe } from "../export/coach.js";
 import { tempsArretS, efficienceAerobie, deriveCardiaque } from "../parseurs/coros.js";
@@ -65,7 +65,7 @@ export function rendreSemaine(contexte) {
 // ------------------------------------------------------------------ Course
 
 function blocCourse(etat, j, aujourdhui) {
-  const prevue = SEANCES_COURSE_PREVUES.find((p) => p.date === j);
+  const prevue = coursePrevue(j);
   const faite = etat.seancesCourse.find((s) => s.date.slice(0, 10) === j);
   const cochee = etat.coches[`${j}:course`];
 
@@ -222,9 +222,8 @@ function detecterConflits(etat, jours) {
   });
 
   const joursQualite = jours.filter((j) => {
-    const prevue = SEANCES_COURSE_PREVUES.find((p) => p.date === j);
     const faite = etat.seancesCourse.find((s) => s.date.slice(0, 10) === j);
-    const type = faite?.saisie?.type || prevue?.type;
+    const type = faite?.saisie?.type || coursePrevue(j)?.type;
     return type && TYPES_QUALITE.includes(type);
   });
 

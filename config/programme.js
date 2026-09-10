@@ -163,17 +163,30 @@ export const SEANCES = {
   },
 };
 
-// SEMAINE TYPE — 3 courses + 3 séances de salle.
+// SEMAINE TYPE — 3 courses + 3 séances de salle, fixée avec Thomas le 10/09/2026.
 //
-// Contrainte structurelle qui gouverne tout le placement : la séance C
-// (jambes) doit tomber le lundi tant que la qualité course est le mercredi.
-// 48 h minimum entre les deux. Jamais l'inverse.
+// Course : EF le mardi, qualité le jeudi, sortie longue le dimanche.
+// Salle  : lundi, mardi, jeudi.
+//
+// Pourquoi la séance C tombe le lundi : c'est le seul jour sans course de la
+// semaine, donc celui qui laisse le plus de marge avant les deux séances qui
+// comptent. Lundi → jeudi fait trois jours, lundi → dimanche six : les 48 h
+// réglementaires sont largement dépassées dans les deux cas. L'EF du mardi
+// sur des jambes de la veille est sans risque, c'est même ce qui les vide.
+//
+// Pourquoi A le mardi et B le jeudi : le soulevé de terre roumain du lundi
+// sollicite le bas du dos et la poigne, le tirage du jeudi aussi. Les séparer
+// de trois jours vaut mieux que d'un seul. Le mardi reçoit donc la poussée,
+// qui ne partage rien avec la séance de la veille.
+//
+// Mardi et jeudi cumulent course et salle. Dans les deux cas la course passe
+// en premier : c'est elle qui décide de la saison.
 export const SEMAINE_TYPE = {
   lundi: { salle: "C", course: null },
-  mardi: { salle: "A", course: null },
-  mercredi: { salle: null, course: "qualite" },
-  jeudi: { salle: "B", course: null },
-  vendredi: { salle: null, course: "ef" },
+  mardi: { salle: "A", course: "ef" },
+  mercredi: { salle: null, course: null, note: "Repos" },
+  jeudi: { salle: "B", course: "qualite" },
+  vendredi: { salle: null, course: null, note: "Repos" },
   samedi: { salle: null, course: null, note: "Repos ou mobilité" },
   dimanche: { salle: null, course: "sortie-longue", note: "Séance clé de la semaine" },
 };

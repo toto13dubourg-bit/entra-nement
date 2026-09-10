@@ -188,7 +188,9 @@ export const DELAIS = [
 
 // SÉANCES DE COURSE QUALIFIÉES « QUALITÉ » — déclenchent le délai de 48 h
 // après une séance C. Toute séance non listée ici n'impose aucun délai.
-export const TYPES_QUALITE = ["seuil", "vma", "fractionne", "cotes", "test", "sortie-longue"];
+// « qualite » est le type générique de la semaine type, quand le contenu
+// exact de la séance n'est pas encore écrit.
+export const TYPES_QUALITE = ["seuil", "vma", "fractionne", "cotes", "test", "sortie-longue", "qualite"];
 
 export const TYPES_SANS_DELAI = ["ef", "recuperation", "lignes-droites", "activation", "deverrouillage"];
 
@@ -202,8 +204,16 @@ export const REGLES = [
   "Jusqu'au 18/10, le plan course commande, pas le programme salle. En cas de conflit, la course tranche.",
 ];
 
-// PLAN DE COURSE PRÉVU — état au 09/09/2026.
+// PLAN DE COURSE PRÉVU — état au 10/09/2026.
 // type : voir TYPES_QUALITE et TYPES_SANS_DELAI.
+//
+// Les semaines ordinaires suivent la semaine type : EF le mardi, qualité le
+// jeudi, sortie longue le dimanche.
+//
+// Les trois semaines particulières y échappent volontairement, parce que
+// leur placement dépend de la date de course et non d'un gabarit hebdomadaire :
+//   21-26/09 semaine du trail  · 27/09-04/10 récupération · 12-18/10 semaine du 10 km
+// Y déplacer les séances pour respecter le gabarit abîmerait l'affûtage.
 export const SEANCES_COURSE_PREVUES = [
   {
     date: "2026-09-09",
@@ -220,13 +230,13 @@ export const SEANCES_COURSE_PREVUES = [
     detail: "~16 km, FC < 150",
     condition: "Test des nouvelles saveurs de nutrition.",
   },
+  { date: "2026-09-15", type: "ef", titre: "EF 35'", detail: "EF 35' + 4 lignes" },
   {
-    date: "2026-09-16",
+    date: "2026-09-17",
     type: "activation",
     titre: "Activation 5×1'",
     detail: "20' EF + 5×1' à allure course (r1') + 10' RC",
   },
-  { date: "2026-09-18", type: "ef", titre: "EF 35'", detail: "EF 35' + 4 lignes" },
   {
     date: "2026-09-20",
     type: "sortie-longue",
@@ -252,13 +262,13 @@ export const SEANCES_COURSE_PREVUES = [
     condition: "Uniquement si le test de l'escalier passe.",
   },
   { date: "2026-10-04", type: "ef", titre: "EF 45'", detail: "Tranquille — ou repos si ça tire" },
+  { date: "2026-10-06", type: "ef", titre: "EF 45'", detail: "EF 45' + 6 lignes" },
   {
-    date: "2026-10-07",
+    date: "2026-10-08",
     type: "vma",
     titre: "Réveil vitesse 8×45\"",
     detail: "20' EF + 8×45\" à 4:05-4:10 (r1'15) + 10' RC",
   },
-  { date: "2026-10-09", type: "ef", titre: "EF 45'", detail: "EF 45' + 6 lignes" },
   {
     date: "2026-10-11",
     type: "test",

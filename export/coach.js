@@ -11,8 +11,9 @@ import {
   verifierDelai,
   cranConnu,
   salleAutorisee,
+  coursePrevue,
 } from "../moteur/phases.js";
-import { SEANCES_COURSE_PREVUES, TYPES_QUALITE } from "../config/calendrier.js";
+import { TYPES_QUALITE } from "../config/calendrier.js";
 import { SEANCES, SEMAINE_TYPE } from "../config/programme.js";
 import { parId } from "../config/catalogue-exercices.js";
 import { GLUCIDES, ALIMENTS, ZONES, CORRECTION_CHALEUR } from "../config/physiologie.js";
@@ -95,7 +96,7 @@ export function anomalies(etat, jours) {
     }
 
     // Réalisé contre prescrit.
-    const prevue = SEANCES_COURSE_PREVUES.find((p) => p.date === c.date.slice(0, 10));
+    const prevue = coursePrevue(c.date);
     if (prevue && saisie.type && prevue.type !== saisie.type) {
       trouvees.push(
         `${jourFr(c.date)} : « ${prevue.detail} » était prévu, une séance de type ` +
@@ -296,7 +297,7 @@ export function exportCoach(etat, semaineAffichee, aujourdhui = semaineAffichee)
   for (let i = 0; i < 7; i++) {
     const j = jours[i];
     const passe = j < aujourdhui.slice(0, 10);
-    const prevueCourse = SEANCES_COURSE_PREVUES.find((p) => p.date === j);
+    const prevueCourse = coursePrevue(j);
     const prevueSalle = SEMAINE_TYPE[JOURS[i]]?.salle;
     const faiteCourse = coursesFaites.find((s) => s.date.slice(0, 10) === j);
     const faiteSalle = sallesFaites.find((s) => s.date.slice(0, 10) === j);
