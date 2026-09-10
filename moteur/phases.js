@@ -16,6 +16,12 @@ import { parId, MATERIEL } from "../config/catalogue-exercices.js";
 
 const jour = (iso) => String(iso).slice(0, 10);
 
+// Format lisible pour les messages : 19/10 plutôt que 2026-10-19.
+const enClair = (iso) => {
+  const [, mois, j] = jour(iso).split("-");
+  return `${j}/${mois}`;
+};
+
 const JOURS_SEMAINE = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 
 const LIBELLES_COURSE = {
@@ -163,7 +169,7 @@ export function verifierDelai(dateSeanceC, dateCourse, typeCourse) {
       jours,
       raison:
         `Seulement ${jours === 0 ? "le même jour" : "24 h"} entre la séance de jambes ` +
-        `du ${jour(dateSeanceC)} et la séance de qualité du ${jour(dateCourse)}. ` +
+        `du ${enClair(dateSeanceC)} et la séance de qualité du ${enClair(dateCourse)}. ` +
         `Il en faut 48.`,
     };
   }
@@ -191,9 +197,9 @@ export function verifierRecuperation(dateCourse, dateSeanceC, typeCourse) {
       conflit: true,
       jours,
       raison:
-        `Séance de jambes le ${jour(dateSeanceC)}, soit ` +
+        `Séance de jambes le ${enClair(dateSeanceC)}, soit ` +
         `${jours === 0 ? "le jour même de" : "le lendemain de"} la sortie longue du ` +
-        `${jour(dateCourse)}. Il faut 48 h : des jambes vidées font une mauvaise ` +
+        `${enClair(dateCourse)}. Il faut 48 h : des jambes vidées font une mauvaise ` +
         `séance de force et récupèrent moins bien.`,
     };
   }

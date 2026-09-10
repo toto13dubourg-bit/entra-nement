@@ -125,6 +125,46 @@ test("Plan de course — la semaine type n'ajoute rien à une semaine déjà pla
   egal(coursePrevue("2026-09-10"), null, "jeudi 10/09");
 });
 
+test("Déplacement — décaler une séance change le jour où elle se tient", async () => {
+  const { creneauxDeLaSemaine, deplacer } = await import("../moteur/planning.js");
+  const { etatVide } = await import("../modele/donnees.js");
+  const jours = ["2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22",
+                 "2026-10-23", "2026-10-24", "2026-10-25"];
+
+  const jambesLe = (etat) =>
+    creneauxDeLaSemaine(etat, jours).find((c) => c.seanceBrute === "C")?.date;
+
+  egal(jambesLe(etatVide()), "2026-10-20", "mardi par défaut");
+
+  const decale = deplacer(etatVide(), "2026-10-20:salle", "2026-10-21");
+  egal(jambesLe(decale), "2026-10-21", "décalée au mercredi");
+
+  const remis = deplacer(decale, "2026-10-20:salle", "2026-10-20");
+  egal(jambesLe(remis), "2026-10-20", "remise à sa place");
+  egal(Object.keys(remis.deplacements).length, 0, "aucun déplacement conservé");
+});
+
+test("Déplacement — un décalage qui casse les 48 h est signalé", async () => {
+  const { creneauxDeLaSemaine, conflitsDeLaSemaine, deplacer } = await import("../moteur/planning.js");
+  const { etatVide } = await import("../modele/donnees.js");
+  const jours = ["2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22",
+                 "2026-10-23", "2026-10-24", "2026-10-25"];
+  const conflits = (etat) => conflitsDeLaSemaine(etat, jours, creneauxDeLaSemaine(etat, jours));
+
+  egal(conflits(etatVide()).length, 0, "la semaine type ne crée aucun conflit");
+
+  // Au mercredi : la veille de la séance de qualité du jeudi.
+  const mercredi = conflits(deplacer(etatVide(), "2026-10-20:salle", "2026-10-21"));
+  egal(mercredi.length, 1, "un conflit attendu");
+  vrai(/Il en faut 48/.test(mercredi[0]), `message, obtenu : ${mercredi[0]}`);
+
+  // Au lundi : le lendemain de la sortie longue de la semaine PRÉCÉDENTE.
+  const lundi = conflits(deplacer(etatVide(), "2026-10-20:salle", "2026-10-19"));
+  egal(lundi.length, 1, "un conflit attendu");
+  vrai(/lendemain de la sortie longue/.test(lundi[0]), `message, obtenu : ${lundi[0]}`);
+  vrai(/18\/10/.test(lundi[0]), "la date est lisible, pas au format technique");
+});
+
 test("Phases — jours restants avant la prochaine course", () => {
   const p = prochaineCourse("2026-09-10");
   egal(p.course.id, "trail-54", "prochaine course");

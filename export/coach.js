@@ -25,6 +25,7 @@ import {
   pointsAberrants,
 } from "../parseurs/coros.js";
 import { chargeDeTravail } from "../moteur/progression.js";
+import { creneauxDeLaSemaine, conflitsDeLaSemaine } from "../moteur/planning.js";
 
 const JOURS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 
@@ -292,21 +293,27 @@ export function exportCoach(etat, semaineAffichee, aujourdhui = semaineAffichee)
 
   // Une séance de salle déplacée dans la semaine reste une séance faite :
   // on compare les types réalisés sur la semaine, pas jour par jour.
+  const creneaux = creneauxDeLaSemaine(etat, jours);
   const typesFaits = new Set(sallesFaites.map((s) => String(s.seance)[0]));
 
   for (let i = 0; i < 7; i++) {
     const j = jours[i];
     const passe = j < aujourdhui.slice(0, 10);
-    const prevueCourse = coursePrevue(j);
-    const prevueSalle = SEMAINE_TYPE[JOURS[i]]?.salle;
+    const creneauCourse = creneaux.find((c) => c.genre === "course" && c.date === j);
+    const creneauSalle = creneaux.find((c) => c.genre === "salle" && c.date === j);
+    const prevueSalle = creneauSalle?.seanceBrute;
     const faiteCourse = coursesFaites.find((s) => s.date.slice(0, 10) === j);
     const faiteSalle = sallesFaites.find((s) => s.date.slice(0, 10) === j);
+
+    const decalage = (c) => (c?.deplacee ? ` (décalée du ${jourFr(c.dateOrigine)})` : "");
 
     const items = [];
     if (faiteCourse) {
       items.push(`course FAITE (${faiteCourse.resume.distanceKm} km)`);
-    } else if (prevueCourse) {
-      items.push(`course PRÉVUE : ${prevueCourse.titre}${passe ? " — SAUTÉE" : ""}`);
+    } else if (creneauCourse) {
+      items.push(
+        `course PRÉVUE : ${creneauCourse.prevue.titre}${decalage(creneauCourse)}${passe ? " — SAUTÉE" : ""}`
+      );
     }
 
     if (prevueSalle && faiteSalle && String(faiteSalle.seance)[0] !== prevueSalle[0]) {
@@ -314,7 +321,7 @@ export function exportCoach(etat, semaineAffichee, aujourdhui = semaineAffichee)
     } else if (faiteSalle) {
       items.push(`salle ${faiteSalle.seance} FAITE`);
     } else if (prevueSalle && !typesFaits.has(prevueSalle[0])) {
-      items.push(`salle ${prevueSalle} PRÉVUE${passe ? " — SAUTÉE" : ""}`);
+      items.push(`salle ${prevueSalle} PRÉVUE${decalage(creneauSalle)}${passe ? " — SAUTÉE" : ""}`);
     } else if (prevueSalle) {
       items.push(`salle ${prevueSalle} faite un autre jour`);
     }
@@ -355,8 +362,9 @@ export function exportCoach(etat, semaineAffichee, aujourdhui = semaineAffichee)
     L.push("");
   }
 
-  // 6. Les anomalies détectées par les règles.
-  const trouvees = anomalies(etat, jours);
+  // 6. Les anomalies détectées par les règles, y compris les conflits de
+  //    délai que le planning de la semaine crée — déplacements compris.
+  const trouvees = [...anomalies(etat, jours), ...conflitsDeLaSemaine(etat, jours, creneaux)];
   if (trouvees.length) {
     L.push("ANOMALIES");
     for (const a of trouvees) L.push(`  - ${a}`);

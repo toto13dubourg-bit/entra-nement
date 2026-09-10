@@ -125,6 +125,10 @@ export function etatVide() {
     // Séances cochées à la main, quand la donnée n'a pas encore été importée.
     // Clé : "2026-09-09:course" ou "2026-09-09:salle".
     coches: {},
+    // Séances décalées dans la semaine, quand la vie s'en mêle.
+    // Clé : le créneau d'origine, valeur : la date réelle.
+    // { "2026-09-15:salle": "2026-09-16" }
+    deplacements: {},
     // Noms Hevy déjà associés à un exercice du catalogue.
     // Alimenté par Thomas à l'import, jamais deviné : { "Squat (Barre)": "squat-guide" }
     associationsHevy: {},
@@ -187,6 +191,7 @@ export function importerJson(texte) {
   etat.associationsHevy = etat.associationsHevy || {};
   etat.exportsCoach = etat.exportsCoach || [];
   etat.coches = etat.coches || {};
+  etat.deplacements = etat.deplacements || {};
 
   return etat;
 }

@@ -1,22 +1,17 @@
 // ÉCRAN « MA SEMAINE » — course et salle mêlées dans l'ordre des jours.
 
 import { html, JOURS, jourCourt, decalerJours, duree, message } from "./base.js";
-import { TYPES_QUALITE } from "../config/calendrier.js";
-import { SEMAINE_TYPE, SEANCES } from "../config/programme.js";
-import {
-  salleAutorisee,
-  versionSeanceC,
-  verifierDelai,
-  verifierRecuperation,
-  coursePrevue,
-} from "../moteur/phases.js";
+import { SEANCES } from "../config/programme.js";
+import { salleAutorisee } from "../moteur/phases.js";
 import { seanceAffichable } from "../moteur/application.js";
+import { creneauxDeLaSemaine, conflitsDeLaSemaine, deplacer } from "../moteur/planning.js";
 import { semaineDe } from "../export/coach.js";
 import { tempsArretS, efficienceAerobie, deriveCardiaque } from "../parseurs/coros.js";
 
 export function rendreSemaine(contexte) {
   const { etat, jour, aujourdhui } = contexte;
   const jours = semaineDe(jour);
+  const creneaux = creneauxDeLaSemaine(etat, jours);
   const L = [];
 
   L.push(`<div class="barre-semaine">
@@ -25,11 +20,11 @@ export function rendreSemaine(contexte) {
     <button class="bouton secondaire" style="width:auto;padding:12px 16px" data-semaine="7">›</button>
   </div>`);
 
-  const conflits = detecterConflits(etat, jours);
+  const conflits = conflitsDeLaSemaine(etat, jours, creneaux);
   if (conflits.length) L.push(message("attention", "Conflit de délai :", conflits));
 
-  // Une séance déplacée dans la semaine reste faite : on ne la repropose pas
-  // le jour où le programme la plaçait.
+  // Une séance de salle déplacée dans la semaine reste faite : on ne la
+  // repropose pas là où le programme la plaçait.
   const typesFaits = new Set(
     etat.seancesSalle
       .filter((s) => jours.includes(s.date.slice(0, 10)))
@@ -41,10 +36,19 @@ export function rendreSemaine(contexte) {
   jours.forEach((j, index) => {
     const blocs = [];
 
-    const course = blocCourse(etat, j, aujourdhui);
-    if (course) blocs.push(course);
+    const faiteCourse = etat.seancesCourse.find((s) => s.date.slice(0, 10) === j);
+    const creneauCourse = creneaux.find((c) => c.genre === "course" && c.date === j);
+    if (faiteCourse || creneauCourse) {
+      blocs.push(carteCourse(etat, j, creneauCourse, faiteCourse, aujourdhui, jours));
+    }
 
-    blocs.push(...blocsSalle(etat, j, index, aujourdhui, typesFaits));
+    const faiteSalle = etat.seancesSalle.find((s) => s.date.slice(0, 10) === j);
+    if (faiteSalle) blocs.push(carteSalle(etat, j, faiteSalle.seance, faiteSalle, null, aujourdhui, jours));
+
+    const creneauSalle = creneaux.find((c) => c.genre === "salle" && c.date === j);
+    if (creneauSalle && !faiteSalle && !typesFaits.has(String(creneauSalle.seanceBrute)[0])) {
+      blocs.push(carteSalle(etat, j, creneauSalle.seanceId, null, creneauSalle, aujourdhui, jours));
+    }
 
     if (!blocs.length) return;
     quelqueChose = true;
@@ -55,9 +59,7 @@ export function rendreSemaine(contexte) {
     </section>`);
   });
 
-  if (!quelqueChose) {
-    L.push(`<p class="vide">Rien de prévu cette semaine.</p>`);
-  }
+  if (!quelqueChose) L.push(`<p class="vide">Rien de prévu cette semaine.</p>`);
 
   L.push(`<div class="boutons" style="margin-top:18px">
     <a class="bouton" href="#coach" style="text-align:center;text-decoration:none;line-height:22px">
@@ -68,22 +70,41 @@ export function rendreSemaine(contexte) {
   return L.join("");
 }
 
+// ---------------------------------------------------------- Le déplacement
+
+function boutonsDeplacement(creneau, jours) {
+  if (!creneau) return "";
+  const initiales = ["L", "M", "M", "J", "V", "S", "D"];
+
+  const chips = jours
+    .map((j, i) => {
+      const actif = j === creneau.date;
+      return `<button type="button" data-deplacer="${html(creneau.cle)}" data-vers="${j}"
+        class="${actif ? "choisi" : ""}" aria-label="${JOURS[i]} ${jourCourt(j)}">${initiales[i]}</button>`;
+    })
+    .join("");
+
+  const retour = creneau.deplacee
+    ? `<p class="sous-titre">Déplacée depuis le ${jourCourt(creneau.dateOrigine)}.
+       <button type="button" class="lien-annuler" data-deplacer="${html(creneau.cle)}"
+               data-vers="${creneau.dateOrigine}">Remettre à sa place</button></p>`
+    : "";
+
+  return `<details><summary>Décaler</summary>
+    <div class="compteur" style="margin-top:6px">${chips}</div>
+    ${retour}
+  </details>`;
+}
+
 // ------------------------------------------------------------------ Course
 
-function blocCourse(etat, j, aujourdhui) {
-  const prevue = coursePrevue(j);
-  const faite = etat.seancesCourse.find((s) => s.date.slice(0, 10) === j);
+function carteCourse(etat, j, creneau, faite, aujourdhui, jours) {
   const cochee = etat.coches[`${j}:course`];
-
-  if (!prevue && !faite) return null;
-
   const estFaite = Boolean(faite) || Boolean(cochee);
   const sautee = !estFaite && j < aujourdhui;
+  const prevue = creneau?.prevue;
 
-  const titre = faite
-    ? faite.saisie?.titre || prevue?.titre || "Sortie"
-    : prevue.titre;
-
+  const titre = faite ? faite.saisie?.titre || prevue?.titre || "Sortie" : prevue.titre;
   const sousTitre = faite
     ? `${faite.resume.distanceKm} km en ${duree(faite.resume.tempsS)} à ${duree(faite.resume.allureS)}/km`
     : prevue.detail;
@@ -100,7 +121,7 @@ function blocCourse(etat, j, aujourdhui) {
       </div>
       <p class="sous-titre">${html(sousTitre)}</p>
       ${prevue?.condition ? `<p class="sous-titre">${html(prevue.condition)}</p>` : ""}
-      ${faite ? detailCourse(faite) : ""}
+      ${faite ? detailCourse(faite) : boutonsDeplacement(creneau, jours)}
     </div>
   </article>`;
 }
@@ -131,24 +152,7 @@ function detailCourse(seance) {
 
 // ------------------------------------------------------------------- Salle
 
-function blocsSalle(etat, j, index, aujourdhui, typesFaits) {
-  const blocs = [];
-  const faite = etat.seancesSalle.find((s) => s.date.slice(0, 10) === j);
-  const prevueBrute = SEMAINE_TYPE[JOURS[index]]?.salle;
-
-  if (faite) blocs.push(carteSalle(etat, j, faite.seance, faite, aujourdhui));
-
-  // La séance prévue n'est reproposée que si aucune séance de ce type n'a été
-  // faite ailleurs dans la semaine.
-  if (prevueBrute && !typesFaits.has(prevueBrute[0])) {
-    const seanceId = prevueBrute === "C" ? versionSeanceC(j) : prevueBrute;
-    if (seanceId) blocs.push(carteSalle(etat, j, seanceId, null, aujourdhui));
-  }
-
-  return blocs;
-}
-
-function carteSalle(etat, j, seanceId, faite, aujourdhui) {
+function carteSalle(etat, j, seanceId, faite, creneau, aujourdhui, jours) {
   const autorisation = salleAutorisee(j, seanceId);
   const estFaite = Boolean(faite) || Boolean(etat.coches[`${j}:salle`]);
   const sautee = !estFaite && j < aujourdhui && autorisation.autorise;
@@ -166,11 +170,14 @@ function carteSalle(etat, j, seanceId, faite, aujourdhui) {
         </span>
       </div>
       ${autorisation.autorise
-        ? `<p class="sous-titre">${html(SEANCES[seanceId]?.detail || "")}</p>${detailSalle(affichable, faite)}`
+        ? `<p class="sous-titre">${html(SEANCES[seanceId]?.detail || "")}</p>` +
+          detailSalle(affichable, faite) +
+          (faite ? "" : boutonsDeplacement(creneau, jours))
         : `<p class="motif-refus">${html(autorisation.raison)}</p>` +
           (autorisation.remplacerPar
             ? `<p class="sous-titre">Version applicable : ${html(SEANCES[autorisation.remplacerPar]?.nom || autorisation.remplacerPar)}</p>`
-            : "")}
+            : "") +
+          (faite ? "" : boutonsDeplacement(creneau, jours))}
     </div>
   </article>`;
 }
@@ -192,6 +199,8 @@ function detailSalle(affichable, faite) {
       }).join("")}
     </details>`;
   }
+
+  if (!affichable) return "";
 
   const ligne = (p) => {
     const unite = p.unite === "secondes" ? "s" : "";
@@ -216,44 +225,7 @@ function detailSalle(affichable, faite) {
   </details>`;
 }
 
-// ---------------------------------------------------------------- Conflits
-
-function detecterConflits(etat, jours) {
-  const conflits = [];
-
-  const joursJambes = jours.filter((j, i) => {
-    const prevue = SEMAINE_TYPE[JOURS[i]]?.salle;
-    const faite = etat.seancesSalle.find((s) => s.date.slice(0, 10) === j);
-    return prevue === "C" || (faite && String(faite.seance).startsWith("C"));
-  });
-
-  const joursQualite = jours.filter((j) => {
-    const faite = etat.seancesCourse.find((s) => s.date.slice(0, 10) === j);
-    const type = faite?.saisie?.type || coursePrevue(j)?.type;
-    return type && TYPES_QUALITE.includes(type);
-  });
-
-  for (const jambes of joursJambes) {
-    for (const qualite of joursQualite) {
-      const verdict = verifierDelai(jambes, qualite, "vma");
-      if (verdict.conflit) conflits.push(verdict.raison);
-    }
-
-    // L'autre sens : une sortie longue trop proche AVANT la séance de jambes.
-    // On regarde les deux jours précédents, y compris la fin de la semaine
-    // passée, puisque la sortie longue tombe le dimanche.
-    for (const recul of [1, 2]) {
-      const veille = decalerJours(jambes, -recul);
-      const faite = etat.seancesCourse.find((s) => s.date.slice(0, 10) === veille);
-      const type = faite?.saisie?.type || coursePrevue(veille)?.type;
-      if (!type) continue;
-      const verdict = verifierRecuperation(veille, jambes, type);
-      if (verdict.conflit) conflits.push(verdict.raison);
-    }
-  }
-
-  return conflits;
-}
+// ------------------------------------------------------------- Branchement
 
 export function brancherSemaine(racine, contexte, rafraichir) {
   racine.querySelectorAll("[data-semaine]").forEach((bouton) => {
@@ -270,6 +242,13 @@ export function brancherSemaine(racine, contexte, rafraichir) {
       if (coches[cle]) delete coches[cle];
       else coches[cle] = true;
       contexte.enregistrer({ ...contexte.etat, coches });
+      rafraichir();
+    });
+  });
+
+  racine.querySelectorAll("[data-deplacer]").forEach((bouton) => {
+    bouton.addEventListener("click", () => {
+      contexte.enregistrer(deplacer(contexte.etat, bouton.dataset.deplacer, bouton.dataset.vers));
       rafraichir();
     });
   });
