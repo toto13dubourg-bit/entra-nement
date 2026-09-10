@@ -131,7 +131,52 @@ test("Hevy — série de travail : la plus fréquente, à égalité la plus lour
   egal(parNom["curl-marteau"], 6, "curl marteau (7-6-6)");
 });
 
-test("Hevy — une série d'échauffement ne compte pas comme série de travail", () => {
+// Thomas ne marque PAS ses séries d'échauffement dans Hevy : elles arrivent
+// donc comme des séries ordinaires. C'est la règle de la série de travail —
+// la plus fréquente, à égalité la plus lourde — qui doit les neutraliser
+// toute seule. Ces trois cas sont la vraie protection du moteur.
+test("Hevy — un échauffement non marqué ne fausse pas la série de travail", () => {
+  const seance = (lignes) =>
+    parserHevy(`Séance\nLe lundi, sept. 14, 2026 à 6:00pm\n\nCurl Biceps (Poulie)\n${lignes}`)
+      .exercices[0];
+
+  egal(
+    serieDeTravail(seance("Série 1: 12 kg x 12\nSérie 2: 20 kg x 12\nSérie 3: 20 kg x 11\nSérie 4: 20 kg x 10")),
+    20,
+    "un échauffement léger, trois séries droites"
+  );
+
+  egal(
+    serieDeTravail(seance("Série 1: 10 kg x 12\nSérie 2: 16 kg x 12\nSérie 3: 20 kg x 12\nSérie 4: 20 kg x 12\nSérie 5: 20 kg x 12")),
+    20,
+    "deux échauffements en montée, trois séries droites"
+  );
+
+  // Le cas retors : autant d'échauffements que de séries de travail.
+  // À égalité de fréquence, c'est la charge la plus lourde qui gagne.
+  egal(
+    serieDeTravail(seance("Série 1: 12 kg x 12\nSérie 2: 12 kg x 12\nSérie 3: 12 kg x 12\nSérie 4: 20 kg x 12\nSérie 5: 20 kg x 12\nSérie 6: 20 kg x 12")),
+    20,
+    "trois échauffements identiques contre trois séries lourdes"
+  );
+});
+
+test("Hevy — un échauffement non marqué n'empêche pas la progression", async () => {
+  const { prochaineEtape, etatInitial } = await import("../moteur/progression.js");
+  const seance = parserHevy(
+    `Séance\nLe lundi, sept. 14, 2026 à 6:00pm\n\nCurl Biceps (Poulie)\n` +
+      `Série 1: 12 kg x 12\nSérie 2: 20 kg x 12\nSérie 3: 20 kg x 11\nSérie 4: 20 kg x 10`
+  );
+  const r = prochaineEtape(
+    etatInitial("curl-poulie", null),
+    seance.exercices[0].series,
+    { series: 3, reps: [10, 12] }
+  );
+  egal(r.action, "monter", "les trois séries à 20 kg comptent comme la séance prescrite");
+  egal(r.chargeKg, 22, "20 kg + le cran de 2 kg de la poulie");
+});
+
+test("Hevy — une série d'échauffement marquée ne compte pas non plus", () => {
   const s = parserHevy(`Séance
 Le lundi, sept. 07, 2026 à 5:12pm
 

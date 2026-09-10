@@ -239,7 +239,12 @@ export const PROGRESSION = {
   jamaisEchecMusculaire: true,
 
   // Série de travail : la charge la plus fréquente de l'exercice ;
-  // à égalité, la plus lourde. Neutralise échauffements et séries ratées.
+  // à égalité, la plus lourde.
+  //
+  // Cette règle n'est pas un raffinement, c'est la pièce maîtresse : Thomas ne
+  // marque pas ses séries d'échauffement dans Hevy (confirmé le 10/09/2026),
+  // elles arrivent donc mêlées aux séries de travail. C'est elle, et elle
+  // seule, qui les écarte. Ne pas la changer sans relire tests-hevy.js.
   serieDeTravail: { regle: "plus-frequente", egalite: "plus-lourde" },
 
   reposSecondes: {
