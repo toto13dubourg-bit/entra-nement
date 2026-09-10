@@ -5,43 +5,99 @@
 // nombre de séries : c'est ce couple qui pilote le moteur de progression.
 // unite : "reps" (défaut) · "secondes" · "reps/cote" · "reps/jambe" · "reps/bras"
 
+// POURQUOI CES SÉANCES SONT CE QU'ELLES SONT — établi le 10/09/2026.
+//
+// Thomas est un coureur de fond expérimenté, mais un DÉBUTANT en force
+// (squat à 30 kg, curl marteau à 6 kg). Les deux statuts commandent des
+// choses différentes, et c'est l'arbitrage central du programme.
+//
+// 1. Le haut et le bas du corps ne suivent pas la même logique.
+//    Le haut du corps n'entre pas en concurrence avec la course : il peut
+//    recevoir un vrai volume d'hypertrophie (objectif été 2027).
+//    Le bas du corps, si : chaque série de jambes est du carburant pris à
+//    la sortie longue. On y va donc LOURD et COURT, jamais en volume.
+//
+// 2. Pour un coureur, la musculation des jambes sert l'économie de course,
+//    pas le volume musculaire. La littérature est constante là-dessus :
+//    charges lourdes, répétitions basses, peu de séries. D'où le squat en
+//    5-8 reps et non en 10-12, et la presse à cuisses reléguée en optionnel
+//    — elle fait de la fatigue sans rien apporter que le squat n'apporte déjà.
+//
+// 3. Trois priorités spécifiques au trail, absentes d'un programme générique :
+//    l'excentrique quadriceps (descentes), les mollets une jambe (tendon
+//    d'Achille), et le moyen fessier (tenue du genou en descente longue).
+//
+// 4. Ce que l'ancien programme faisait de travers : trois exercices de
+//    biceps pour deux de dos. Le rapport est inversé.
+//
+// 5. Aucune machine assistée dans la salle : la traction se construit donc
+//    par le tirage vertical et les négatives, seul chemin disponible.
+
 export const SEANCES = {
   A: {
     id: "A",
     nom: "A — Poussée",
     detail: "Pectoraux / épaules / triceps",
     lignes: [
-      { exercice: "developpe-couche-halteres", series: 4, reps: [8, 10], role: "principal",
-        consigne: "Haltères plutôt que barre : meilleure amplitude, épaules protégées, plus sûr seul." },
-      { exercice: "dips", series: 3, reps: [8, 12], role: "principal",
-        alternative: "developpe-incline-halteres",
-        consigne: "Maximum à établir avant la première prescription. Si moins de 8 reps propres, basculer sur l'alternative." },
-      { exercice: "developpe-epaules-machine", series: 3, reps: [8, 10], role: "secondaire",
-        alternative: "developpe-militaire-halteres",
-        consigne: "La machine permet une progression au cran, plus régulière que les haltères en solo." },
-      { exercice: "elevations-laterales", series: 4, reps: [12, 15], role: "isolation",
-        consigne: "Léger, propre, jamais d'élan." },
-      { exercice: "extension-triceps-overhead", series: 3, reps: [10, 12], role: "isolation" },
-      { exercice: "planche", series: 3, reps: [40, 40], unite: "secondes", role: "gainage" },
+      { exercice: "developpe-couche-halteres", series: 4, reps: [6, 10], role: "principal",
+        consigne:
+          "Haltères et non barre : amplitude supérieure, épaules protégées, et surtout " +
+          "aucun risque de rester coincé sous la barre en s'entraînant seul." },
+      { exercice: "developpe-militaire-halteres", series: 3, reps: [8, 12], role: "principal",
+        alternative: "developpe-epaules-machine",
+        consigne:
+          "Assis, dossier redressé. La machine est une alternative valable les jours " +
+          "de fatigue : elle demande moins de stabilisation." },
+      { exercice: "dips", series: 3, reps: [6, 12], role: "secondaire",
+        alternative: "ecarte-poulie-haute",
+        consigne:
+          "Maximum à établir avant toute prescription. En dessous de 6 répétitions " +
+          "propres, faire des négatives de 5 s et basculer sur l'écarté." },
+      { exercice: "elevations-laterales", series: 4, reps: [12, 20], role: "isolation",
+        consigne:
+          "Le seul exercice qui élargit vraiment les épaules. Léger, propre, jamais " +
+          "d'élan : monter en répétitions avant de monter en charge." },
+      { exercice: "extension-triceps-overhead", series: 3, reps: [10, 15], role: "isolation",
+        consigne: "Bras au-dessus de la tête : c'est la seule position qui étire le chef long." },
+      { exercice: "planche", series: 3, reps: [45, 45], unite: "secondes", role: "gainage" },
     ],
     optionnel: [
-      { exercice: "ecarte-poulie-haute", series: 3, reps: [10, 12], role: "isolation",
-        consigne: "Si le temps le permet : étirement du pec, complément du développé." },
+      { exercice: "ecarte-poulie-haute", series: 3, reps: [12, 15], role: "isolation",
+        consigne: "Pec en position étirée, tension constante. À ajouter si le temps le permet." },
     ],
   },
 
   B: {
     id: "B",
     nom: "B — Tirage",
-    detail: "Dos / biceps",
+    detail: "Dos / biceps / arrière d'épaule",
     lignes: [
-      { exercice: "tirage-vertical", series: 4, reps: [8, 10], role: "principal",
-        consigne: "Deviendra « tractions » quand le maximum sera établi. Pas de machine à tractions assistées dans la salle." },
-      { exercice: "rowing-haltere", series: 4, reps: [10, 10], unite: "reps/bras", role: "principal" },
-      { exercice: "tirage-horizontal", series: 3, reps: [10, 12], role: "secondaire" },
-      { exercice: "curl-incline", series: 3, reps: [10, 12], role: "isolation" },
-      { exercice: "face-pull", series: 3, reps: [15, 15], role: "isolation" },
-      { exercice: "planche-laterale", series: 2, reps: [30, 30], unite: "secondes", role: "gainage" },
+      { exercice: "tirage-vertical", series: 4, reps: [8, 12], role: "principal",
+        consigne:
+          "Prise large. C'est le chemin vers la traction : quand tu tires ton poids " +
+          "de corps pour 8 répétitions propres, la traction est à portée." },
+      { exercice: "rowing-haltere", series: 4, reps: [8, 12], unite: "reps/bras", role: "principal",
+        consigne:
+          "En appui sur le banc, jamais penché libre : ton bas du dos travaille déjà " +
+          "au soulevé de terre du lundi et à chaque sortie longue." },
+      { exercice: "tirage-horizontal", series: 3, reps: [10, 12], role: "secondaire",
+        consigne: "Buste calé, tension constante sur le milieu du dos." },
+      { exercice: "face-pull", series: 3, reps: [15, 20], role: "isolation",
+        consigne:
+          "Non négociable quand on pousse une fois par semaine : c'est ce qui garde " +
+          "l'épaule saine face au volume de développé." },
+      { exercice: "curl-incline", series: 3, reps: [8, 12], role: "isolation",
+        consigne: "Banc incliné : biceps en étirement, c'est là qu'il travaille le plus." },
+      { exercice: "planche-laterale", series: 2, reps: [40, 40], unite: "secondes", role: "gainage",
+        consigne: "Stabilité du bassin : ce qui tient la foulée dans les dix derniers kilomètres." },
+    ],
+    optionnel: [
+      { exercice: "curl-marteau", series: 2, reps: [10, 12], role: "isolation",
+        consigne: "Brachial et avant-bras : l'épaisseur du bras, pas seulement le pic." },
+      { exercice: "tractions-negatives", series: 3, reps: [3, 5], role: "secondaire",
+        consigne:
+          "Monter sur le cube, descendre en 5 s. Seul chemin vers la traction : " +
+          "il n'y a pas de machine assistée dans la salle." },
     ],
   },
 
@@ -53,22 +109,40 @@ export const SEANCES = {
     nom: "C — Bas du corps (chargée)",
     detail: "À partir du 19/10/2026 uniquement",
     lignes: [
-      { exercice: "squat-guide", series: 4, reps: [6, 8], role: "principal" },
+      { exercice: "squat-guide", series: 4, reps: [5, 8], role: "principal",
+        consigne:
+          "Lourd et court. Chez un coureur, la force des jambes sert l'économie de " +
+          "course : 5 à 8 répétitions, jamais 12. Deux minutes trente de repos." },
       { exercice: "souleve-terre-roumain", series: 3, reps: [8, 10], role: "secondaire",
-        consigne: "Descente 3 s, dos plat." },
-      { exercice: "presse-cuisses", series: 3, reps: [10, 12], role: "isolation",
-        consigne: "Volume quadriceps sans charge sur la colonne." },
-      { exercice: "leg-curl-assis", series: 3, reps: [10, 12], role: "isolation",
-        consigne: "Ischios. La machine existe : c'est un leg curl assis." },
-      { exercice: "extension-mollet", series: 4, reps: [12, 15], role: "isolation",
-        consigne: "Descente lente 3 s. Protège le tendon d'Achille." },
-      { exercice: "step-down", series: 3, reps: [10, 10], unite: "reps/jambe", role: "secondaire",
+        consigne:
+          "Descente 3 s, dos plat, barre au contact des cuisses. L'excentrique ischio " +
+          "est la meilleure prévention de claquage qui existe." },
+      { exercice: "split-squat-bulgare", series: 3, reps: [8, 10], unite: "reps/jambe", role: "secondaire",
         alternative: "fentes-marchees",
-        consigne: "3 s à la descente. Excentrique quadriceps : LA clé des descentes en trail. À garder toute l'année." },
+        consigne:
+          "Unilatéral : c'est le meilleur transfert vers la course, parce qu'on ne " +
+          "court jamais sur deux jambes à la fois." },
+      { exercice: "step-down", series: 2, reps: [10, 10], unite: "reps/jambe", role: "secondaire",
+        consigne:
+          "3 s à la descente. Excentrique quadriceps, la clé des descentes de trail. " +
+          "À garder toute l'année, y compris en pleine prépa." },
+      { exercice: "extension-mollet", series: 4, reps: [12, 15], role: "isolation",
+        consigne:
+          "Une jambe, 3 s à la descente, amplitude complète. C'est ce qui tient le " +
+          "tendon d'Achille sur 54 km." },
+      { exercice: "abducteurs", series: 3, reps: [12, 15], role: "isolation",
+        consigne:
+          "Moyen fessier. C'est lui qui empêche le genou de rentrer en descente " +
+          "quand la fatigue arrive." },
     ],
     optionnel: [
-      { exercice: "abducteurs", series: 3, reps: [12, 15], role: "isolation",
-        consigne: "Moyen fessier : stabilité du genou sur les longues descentes." },
+      { exercice: "leg-curl-assis", series: 3, reps: [10, 12], role: "isolation",
+        consigne: "Ischios en complément du soulevé de terre, si les jambes le supportent." },
+      { exercice: "presse-cuisses", series: 3, reps: [8, 12], role: "isolation",
+        consigne:
+          "Volontairement optionnelle : elle fait double emploi avec le squat et le " +
+          "split squat, et ajoute de la fatigue sans rien apporter de plus au coureur. " +
+          "À utiliser surtout si le rack de squat est occupé." },
     ],
   },
 

@@ -110,9 +110,9 @@ export const CATALOGUE = [
     materiel: "cube", disponible: true, charge: "corps-leste", pas: 2, nomsHevy: [] },
 
   // --------------------------------------------------------------- MOLLETS
-  { id: "extension-mollet", nom: "Extension mollet debout", groupe: "mollets",
+  { id: "extension-mollet", nom: "Extension mollet une jambe", groupe: "mollets",
     materiel: "cube", disponible: true, charge: "corps-leste", pas: 2, nomsHevy: [],
-    note: "Descente lente 3 s. Pas de machine à mollets dans la salle." },
+    note: "Une jambe, 3 s à la descente, amplitude complète. Pas de machine à mollets dans la salle." },
 
   { id: "mollets-excentriques", nom: "Mollets excentriques", groupe: "mollets",
     materiel: "aucun", disponible: true, charge: "corps", nomsHevy: [] },
@@ -137,6 +137,10 @@ export const CATALOGUE = [
   { id: "tractions", nom: "Tractions", groupe: "dos",
     materiel: "barre-tractions", disponible: true, charge: "corps-leste", pas: 2, nomsHevy: [],
     note: "Jamais testé. Établir un maximum avant toute prescription. Pas de machine assistée dans la salle." },
+
+  { id: "tractions-negatives", nom: "Tractions négatives (5 s)", groupe: "dos",
+    materiel: "barre-tractions", disponible: true, charge: "corps", nomsHevy: [],
+    note: "Monter sur le cube, descendre en 5 s. Seul chemin vers la traction complète en l'absence de machine assistée." },
 
   // -------------------------------------------------------------- PECTORAUX
   { id: "developpe-couche-halteres", nom: "Développé couché (haltères)", groupe: "pecs",
