@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planche des schémas</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+  body { padding: 20px; }
+  .planche { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .case { background: var(--carte); border: 1px solid var(--bord); border-radius: 12px; padding: 10px; text-align: center; }
+  .case .schema { width: 100%; height: auto; }
+  .case p { margin: 8px 0 0; font-size: 12px; color: var(--attenue); }
+  .manquants { margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h1 style="font-size:20px;margin:0 0 4px">Planche des schémas</h1>
+<p class="aide">Trait pointillé : position de départ. Trait plein : position d'arrivée.</p>
+
+<div class="planche" id="planche"></div>
+<div class="manquants" id="manquants"></div>
+
+<script type="module">
+  import { SCHEMAS } from "../config/schemas.js";
+  import { schemaSvg } from "../ui/schema.js";
+  import { parId } from "../config/catalogue-exercices.js";
+  import { SEANCES } from "../config/programme.js";
+
+  document.getElementById("planche").innerHTML = Object.keys(SCHEMAS)
+    .map((id) => `<div class="case">${schemaSvg(id, 130)}<p>${parId[id]?.nom || id}</p></div>`)
+    .join("");
+
+  const prescrits = new Set();
+  for (const s of Object.values(SEANCES)) {
+    for (const l of [...s.lignes, ...(s.optionnel || [])]) prescrits.add(l.exercice);
+  }
+  const manquants = [...prescrits].filter((id) => !SCHEMAS[id]);
+  document.getElementById("manquants").innerHTML = manquants.length
+    ? `<div class="message erreur">Exercices prescrits sans schéma :<ul>${manquants
+        .map((id) => `<li>${parId[id]?.nom || id}</li>`).join("")}</ul></div>`
+    : `<div class="message succes">Les ${prescrits.size} exercices prescrits ont tous un schéma.</div>`;
+  window.manquants = manquants;
+</script>
+
+</body>
+</html>

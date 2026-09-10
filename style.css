@@ -224,6 +224,52 @@ details[open] summary::before { content: "▾ "; }
 .exercice .prescription { color: var(--attenue); font-size: 12.5px; display: block; }
 .exercice .note { color: var(--alerte); font-size: 12.5px; display: block; margin-top: 3px; }
 
+/* --------------------------------------------------------- Schémas */
+
+.schema {
+  flex: 0 0 auto;
+  background: var(--fond);
+  border: 1px solid var(--bord);
+  border-radius: 10px;
+}
+
+.schema .depart {
+  fill: none;
+  stroke: #6b7a99;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.schema .arrivee {
+  fill: none;
+  stroke: var(--texte);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.schema .materiel { fill: #263349; stroke: #33415c; stroke-width: 1; }
+.schema .materiel-trait { stroke: #33415c; stroke-width: 2.4; stroke-linecap: round; }
+.schema .fleche { stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; }
+.schema .pointe { fill: var(--accent); }
+
+.exercice-avec-schema {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-top: 1px solid var(--bord);
+}
+
+.exercice-avec-schema .exercice { flex: 1; min-width: 0; border-top: 0; padding: 0; }
+
+.legende-schema {
+  margin: 10px 0 0;
+  color: var(--attenue);
+  font-size: 12px;
+}
+
 /* ------------------------------------------------------- Formulaires */
 
 label { display: block; margin-bottom: 12px; font-size: 14px; color: var(--attenue); }

@@ -1,4 +1,4 @@
-const CACHE = "entrainement-1.0.0";
+const CACHE = "entrainement-1.1.0";
 
 const FICHIERS = [
   "./",
@@ -15,9 +15,11 @@ const FICHIERS = [
   "./config/donnees-initiales.js",
   "./config/physiologie.js",
   "./config/programme.js",
+  "./config/schemas.js",
   "./modele/donnees.js",
   "./moteur/application.js",
   "./moteur/phases.js",
+  "./moteur/planning.js",
   "./moteur/progression.js",
   "./parseurs/coros.js",
   "./parseurs/hevy.js",
@@ -28,6 +30,7 @@ const FICHIERS = [
   "./ui/coach.js",
   "./ui/import.js",
   "./ui/progres.js",
+  "./ui/schema.js",
   "./ui/sauvegarde.js",
   "./ui/semaine.js",
 ];

@@ -120,15 +120,9 @@ export function propositionDuJour(etat, seanceId, ligne, date) {
 
   const suivi = etat.progression[ligne.exercice];
   if (!suivi || suivi.chargeKg === null) {
-    return {
-      ...base,
-      disponible: true,
-      chargeKg: null,
-      raison:
-        "Charge jamais enregistrée. Calibre : échauffement léger à 12 reps, puis monte " +
-        `jusqu'à la charge où la ${ligne.reps[1]}ᵉ répétition est dure mais propre, ` +
-        "avec 2 à 3 reps en réserve.",
-    };
+    // Le mode d'emploi de la calibration est affiché une fois par séance,
+    // pas sur chaque ligne : répété six fois, il noie l'écran.
+    return { ...base, disponible: true, chargeKg: null, aCalibrer: true };
   }
 
   return {

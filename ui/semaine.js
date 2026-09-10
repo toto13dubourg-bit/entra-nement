@@ -7,6 +7,7 @@ import { seanceAffichable } from "../moteur/application.js";
 import { creneauxDeLaSemaine, conflitsDeLaSemaine, deplacer } from "../moteur/planning.js";
 import { semaineDe } from "../export/coach.js";
 import { tempsArretS, efficienceAerobie, deriveCardiaque } from "../parseurs/coros.js";
+import { schemaSvg } from "./schema.js";
 
 export function rendreSemaine(contexte) {
   const { etat, jour, aujourdhui } = contexte;
@@ -205,7 +206,7 @@ function detailSalle(affichable, faite) {
   const ligne = (p) => {
     const unite = p.unite === "secondes" ? "s" : "";
     const prescription = `${p.series} × ${p.reps[0] === p.reps[1] ? p.reps[0] : p.reps.join("-")}${unite}`;
-    return `<div class="exercice">
+    const corps = `<div class="exercice">
       <span>${html(p.nom)}
         <span class="prescription">${html(prescription)}</span>
         ${p.raison ? `<span class="note">${html(p.raison)}</span>` : ""}
@@ -215,13 +216,30 @@ function detailSalle(affichable, faite) {
         ${p.disponible ? html(p.texte || "à calibrer") : "indisponible"}
       </span>
     </div>`;
+
+    const schema = schemaSvg(p.exerciceId);
+    return schema
+      ? `<div class="exercice-avec-schema">${schema}${corps}</div>`
+      : `<div class="exercice-avec-schema">${corps}</div>`;
   };
 
+  const aCalibrer = [...affichable.lignes, ...affichable.optionnel].some((p) => p.aCalibrer);
+
   return `<details><summary>Voir la séance</summary>
+    ${aCalibrer
+      ? `<p class="legende-schema" style="margin:8px 0 0">
+           À calibrer : échauffement léger à 12 répétitions, puis monte jusqu'à la charge
+           où la dernière répétition de la fourchette est dure mais propre, avec 2 à 3
+           répétitions en réserve. Cette charge devient le point de départ.
+         </p>`
+      : ""}
     ${affichable.lignes.map(ligne).join("")}
     ${affichable.optionnel.length
       ? `<h3 style="margin-top:12px">Optionnel</h3>${affichable.optionnel.map(ligne).join("")}`
       : ""}
+    <p class="legende-schema">
+      Trait gris : départ. Trait blanc : arrivée. Flèche : sens du mouvement moteur.
+    </p>
   </details>`;
 }
 
