@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tests — Entraînement</title>
+<style>
+  body { margin:0; padding:20px; background:#0b1220; color:#e8edf5;
+         font:15px/1.5 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  .aide { color:#93a2bd; font-size:14px; margin:0 0 18px; }
+  h2 { font-size:15px; margin:22px 0 8px; color:#93a2bd; font-weight:600; }
+  ul { list-style:none; margin:0; padding:0; }
+  li { display:flex; gap:10px; align-items:baseline; padding:7px 0;
+       border-top:1px solid #23304a; }
+  li span:first-child { font-weight:700; width:1.1em; flex:0 0 auto; }
+  li.ok span:first-child { color:#4ade80; }
+  li.ko span:first-child { color:#f87171; }
+  .detail { display:block; color:#f87171; font-size:13px; margin-top:2px; }
+  .bilan { margin:14px 0 0; padding:12px 14px; border-radius:10px; font-weight:600; }
+  .bilan.ok { background:#14321f; color:#4ade80; }
+  .bilan.ko { background:#3a1a1a; color:#f87171; }
+</style>
+</head>
+<body>
+
+<h1>Tests</h1>
+<p class="aide">Les valeurs attendues viennent des relevés de Thomas, pas du code testé.</p>
+
+<h2>Parseur COROS</h2>
+<ul id="coros"></ul>
+
+<script type="module">
+  import { executer } from "./executer.js";
+  await import("./tests-coros.js");
+  window.resultats = await executer(document.getElementById("coros"));
+</script>
+
+</body>
+</html>
