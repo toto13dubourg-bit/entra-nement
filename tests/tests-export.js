@@ -65,7 +65,7 @@ test("Export — les sept sections apparaissent dans l'ordre demandé", async ()
 test("Export — une séance déplacée n'est pas comptée comme sautée", () => {
   // La séance B a été faite le mardi, alors que le programme la place le jeudi.
   const texte = exportCoach(etatDeBase(), "2026-09-13");
-  vrai(/mardi 08\/09 : salle A prévue, B FAITE à la place/.test(texte), "mardi");
+  vrai(/mardi 08\/09 :.*prévue, B FAITE à la place/.test(texte), "mardi");
   vrai(/jeudi 10\/09 : salle B faite un autre jour/.test(texte), "jeudi, pas de « SAUTÉE »");
   vrai(!/salle B PRÉVUE — SAUTÉE/.test(texte), "aucune mention de séance B sautée");
 });

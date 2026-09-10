@@ -168,22 +168,30 @@ export const SEANCES = {
 // Course : EF le mardi, qualité le jeudi, sortie longue le dimanche.
 // Salle  : lundi, mardi, jeudi.
 //
-// Pourquoi la séance C tombe le lundi : c'est le seul jour sans course de la
-// semaine, donc celui qui laisse le plus de marge avant les deux séances qui
-// comptent. Lundi → jeudi fait trois jours, lundi → dimanche six : les 48 h
-// réglementaires sont largement dépassées dans les deux cas. L'EF du mardi
-// sur des jambes de la veille est sans risque, c'est même ce qui les vide.
+// Pourquoi la séance C tombe le MARDI, et pas le lundi.
 //
-// Pourquoi A le mardi et B le jeudi : le soulevé de terre roumain du lundi
-// sollicite le bas du dos et la poigne, le tirage du jeudi aussi. Les séparer
-// de trois jours vaut mieux que d'un seul. Le mardi reçoit donc la poussée,
-// qui ne partage rien avec la séance de la veille.
+// Une première version la plaçait le lundi, au motif que c'était le seul jour
+// sans course. C'était une erreur, relevée par Thomas : le lundi tombe le
+// LENDEMAIN de la sortie longue. Des squats lourds sur des jambes qui ont
+// couru 1h30 à 2h45 la veille, c'est une mauvaise séance de force et une
+// récupération sabotée. Le délai de 48 h vaut dans les deux sens, pas
+// seulement avant les séances qui comptent.
+//
+// Le mardi satisfait tout : deux jours après la sortie longue, deux jours
+// avant la qualité du jeudi, cinq avant la sortie longue suivante. L'EF de
+// 40 minutes qui le précède est assez facile pour servir d'échauffement.
+//
+// Pourquoi pas le jeudi : les jambes y arriveraient APRÈS la séance de
+// qualité, donc déjà vidées par du seuil ou de la VMA.
+//
+// Le lundi devient la journée haut du corps : aucune charge sur les jambes
+// au lendemain de la sortie longue, ce qui est exactement ce qu'il faut.
 //
 // Mardi et jeudi cumulent course et salle. Dans les deux cas la course passe
 // en premier : c'est elle qui décide de la saison.
 export const SEMAINE_TYPE = {
-  lundi: { salle: "C", course: null },
-  mardi: { salle: "A", course: "ef" },
+  lundi: { salle: "A", course: null },
+  mardi: { salle: "C", course: "ef" },
   mercredi: { salle: null, course: null, note: "Repos" },
   jeudi: { salle: "B", course: "qualite" },
   vendredi: { salle: null, course: null, note: "Repos" },

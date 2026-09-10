@@ -149,6 +149,51 @@ test("Délai — la sortie longue compte comme une séance de qualité", () => {
   egal(verifierDelai("2026-09-12", "2026-09-13", "sortie-longue").conflit, true, "SL la veille");
 });
 
+test("Récupération — les jambes ne peuvent pas suivre la sortie longue", async () => {
+  const { verifierRecuperation } = await import("../moteur/phases.js");
+  // L'erreur exacte que Thomas a relevée : séance C le lundi, sortie longue
+  // le dimanche. Le délai de 48 h vaut dans les deux sens.
+  const lendemain = verifierRecuperation("2026-09-13", "2026-09-14", "sortie-longue");
+  egal(lendemain.conflit, true, "lundi après la SL du dimanche");
+  vrai(/48 h/.test(lendemain.raison), `la raison cite les 48 h, obtenu : ${lendemain.raison}`);
+
+  egal(verifierRecuperation("2026-09-13", "2026-09-15", "sortie-longue").conflit, false, "mardi : c'est bon");
+  egal(verifierRecuperation("2026-09-13", "2026-09-13", "sortie-longue").conflit, true, "le jour même");
+  egal(verifierRecuperation("2026-09-13", "2026-09-14", "ef").conflit, false, "un footing ne bloque rien");
+});
+
+test("Semaine type — la séance de jambes tombe deux jours après la sortie longue", async () => {
+  const { SEMAINE_TYPE } = await import("../config/programme.js");
+  const { verifierRecuperation, verifierDelai } = await import("../moteur/phases.js");
+  const jours = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+
+  const indexJambes = jours.findIndex((j) => SEMAINE_TYPE[j].salle === "C");
+  const indexSL = jours.findIndex((j) => SEMAINE_TYPE[j].course === "sortie-longue");
+  const indexQualite = jours.findIndex((j) => SEMAINE_TYPE[j].course === "qualite");
+
+  vrai(indexJambes >= 0 && indexSL >= 0 && indexQualite >= 0, "la semaine type est complète");
+
+  // Semaine de référence : lundi 2026-09-14 au dimanche 2026-09-20.
+  const date = (i) => `2026-09-${String(14 + i).padStart(2, "0")}`;
+
+  // La sortie longue de la semaine PRÉCÉDENTE, le dimanche 13/09.
+  egal(
+    verifierRecuperation("2026-09-13", date(indexJambes), "sortie-longue").conflit,
+    false,
+    "assez de récupération après la sortie longue précédente"
+  );
+  egal(
+    verifierDelai(date(indexJambes), date(indexQualite), "vma").conflit,
+    false,
+    "48 h avant la séance de qualité"
+  );
+  egal(
+    verifierDelai(date(indexJambes), date(indexSL), "sortie-longue").conflit,
+    false,
+    "48 h avant la sortie longue"
+  );
+});
+
 test("Délai — un footing n'impose aucun délai", () => {
   egal(verifierDelai("2026-09-08", "2026-09-09", "ef").conflit, false, "EF le lendemain");
   egal(verifierDelai("2026-09-08", "2026-09-08", "recuperation").conflit, false, "récup le jour même");

@@ -171,6 +171,36 @@ export function verifierDelai(dateSeanceC, dateCourse, typeCourse) {
   return { conflit: false, jours };
 }
 
+// Les séances de course qui vident assez les jambes pour qu'une séance de
+// force ne puisse pas suivre le lendemain.
+const EPUISE_LES_JAMBES = ["sortie-longue", "course"];
+
+// L'autre sens du même délai : une séance de jambes ne peut pas suivre de
+// trop près une sortie longue ou une course. C'est la règle qui manquait
+// quand la séance C avait été placée au lendemain de la sortie longue.
+export function verifierRecuperation(dateCourse, dateSeanceC, typeCourse) {
+  if (!EPUISE_LES_JAMBES.includes(typeCourse)) {
+    return { conflit: false, raison: `Une séance de type « ${typeCourse} » ne bloque rien.` };
+  }
+
+  const jours = ecartEnJours(dateCourse, dateSeanceC);
+  if (jours < 0) return { conflit: false, raison: "La séance de jambes précède la course." };
+
+  if (jours < 2) {
+    return {
+      conflit: true,
+      jours,
+      raison:
+        `Séance de jambes le ${jour(dateSeanceC)}, soit ` +
+        `${jours === 0 ? "le jour même de" : "le lendemain de"} la sortie longue du ` +
+        `${jour(dateCourse)}. Il faut 48 h : des jambes vidées font une mauvaise ` +
+        `séance de force et récupèrent moins bien.`,
+    };
+  }
+
+  return { conflit: false, jours };
+}
+
 // Ce que l'appli peut proposer aujourd'hui, et ce qu'elle refuse, avec la
 // raison de chaque refus. C'est cette liste qui alimente l'export coach.
 export function seanceDuJour(date, seanceId) {

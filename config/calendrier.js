@@ -166,6 +166,21 @@ export const DELAIS = [
     raison: "Volume d'impacts sur jambes courbaturées : la foulée se dégrade.",
   },
   {
+    de: "sortie-longue",
+    vers: "seance-C",
+    heures: 48,
+    raison:
+      "48 h minimum entre une sortie longue et une séance de jambes. Le délai " +
+      "vaut dans les deux sens : des jambes vidées la veille font une mauvaise " +
+      "séance de force et retardent la récupération.",
+  },
+  {
+    de: "course",
+    vers: "seance-C",
+    heures: 48,
+    raison: "48 h minimum entre une course et une séance de jambes.",
+  },
+  {
     de: "seance-A",
     vers: "course",
     heures: 0,

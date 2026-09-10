@@ -3,7 +3,13 @@
 import { html, JOURS, jourCourt, decalerJours, duree, message } from "./base.js";
 import { TYPES_QUALITE } from "../config/calendrier.js";
 import { SEMAINE_TYPE, SEANCES } from "../config/programme.js";
-import { salleAutorisee, versionSeanceC, verifierDelai, coursePrevue } from "../moteur/phases.js";
+import {
+  salleAutorisee,
+  versionSeanceC,
+  verifierDelai,
+  verifierRecuperation,
+  coursePrevue,
+} from "../moteur/phases.js";
 import { seanceAffichable } from "../moteur/application.js";
 import { semaineDe } from "../export/coach.js";
 import { tempsArretS, efficienceAerobie, deriveCardiaque } from "../parseurs/coros.js";
@@ -230,6 +236,18 @@ function detecterConflits(etat, jours) {
   for (const jambes of joursJambes) {
     for (const qualite of joursQualite) {
       const verdict = verifierDelai(jambes, qualite, "vma");
+      if (verdict.conflit) conflits.push(verdict.raison);
+    }
+
+    // L'autre sens : une sortie longue trop proche AVANT la séance de jambes.
+    // On regarde les deux jours précédents, y compris la fin de la semaine
+    // passée, puisque la sortie longue tombe le dimanche.
+    for (const recul of [1, 2]) {
+      const veille = decalerJours(jambes, -recul);
+      const faite = etat.seancesCourse.find((s) => s.date.slice(0, 10) === veille);
+      const type = faite?.saisie?.type || coursePrevue(veille)?.type;
+      if (!type) continue;
+      const verdict = verifierRecuperation(veille, jambes, type);
       if (verdict.conflit) conflits.push(verdict.raison);
     }
   }
