@@ -42,7 +42,17 @@ export const COURSES = [
 ];
 
 // PHASES — pilotées par les dates de course. Déterminent ce qui est autorisé.
-// salle : "libre" · "haut-du-corps-seul" · "leger" · "interdite"
+//
+// salle : "libre"              -> A, B et C (version autorisée par basDuCorpsCharge)
+//         "haut-du-corps-seul" -> A et B uniquement, jamais C
+//         "interdite"          -> aucune séance, l'appli refuse et dit pourquoi
+// dernierJourSalle : dernière date où la salle est ouverte dans la phase.
+//                    Au-delà, plus rien jusqu'à la fin de la phase.
+//
+// Arbitré le 10/09/2026 : le haut du corps n'est plus bloqué par le calendrier
+// course. Seul le BAS du corps l'est, parce que lui seul entre en concurrence
+// avec les jambes. Le haut du corps ne s'interrompt qu'à l'approche immédiate
+// d'une course et le temps de la récupération post-trail.
 export const PHASES = [
   {
     id: "S4",
@@ -59,7 +69,7 @@ export const PHASES = [
     debut: "2026-09-14",
     fin: "2026-09-20",
     autorite: "course",
-    salle: "leger",
+    salle: "libre",
     basDuCorpsCharge: false,
   },
   {
@@ -68,19 +78,33 @@ export const PHASES = [
     debut: "2026-09-21",
     fin: "2026-09-26",
     autorite: "course",
-    salle: "interdite",
+    salle: "haut-du-corps-seul",
+    dernierJourSalle: "2026-09-23", // J-3 avant le trail
     basDuCorpsCharge: false,
-    raisonRefus: "Semaine de course : aucune séance de salle jusqu'au trail du 26/09.",
+    raisonRefus:
+      "Trail 54 km le 26/09 : plus aucune séance de salle à partir du 24/09, " +
+      "pour arriver frais au départ.",
   },
   {
     id: "R1",
-    nom: "Récupération",
+    nom: "Récupération post-trail",
     debut: "2026-09-27",
-    fin: "2026-10-04",
+    fin: "2026-10-01",
     autorite: "course",
     salle: "interdite",
     basDuCorpsCharge: false,
-    raisonRefus: "Semaine de récupération post-trail : repos quasi total, salle fermée.",
+    raisonRefus:
+      "Récupération sacrée après 54 km : repos quasi total jusqu'au 01/10. " +
+      "Reprise du haut du corps le 02/10.",
+  },
+  {
+    id: "R1b",
+    nom: "Reprise haut du corps",
+    debut: "2026-10-02",
+    fin: "2026-10-04",
+    autorite: "course",
+    salle: "haut-du-corps-seul",
+    basDuCorpsCharge: false,
   },
   {
     id: "R2",
@@ -97,8 +121,10 @@ export const PHASES = [
     debut: "2026-10-12",
     fin: "2026-10-18",
     autorite: "course",
-    salle: "leger",
+    salle: "haut-du-corps-seul",
+    dernierJourSalle: "2026-10-13", // puis plus rien jusqu'au 10 km
     basDuCorpsCharge: false,
+    raisonRefus: "10 km le 18/10 : plus aucune séance de salle à partir du 14/10.",
   },
   {
     id: "CONSTRUCTION",
@@ -259,16 +285,6 @@ export const SEANCES_SALLE_PREVUES = [
   { date: "2026-10-13", seance: "A", detail: "Haut du corps très léger, puis plus rien avant le 18/10" },
 ];
 
-// À TRANCHER — contradiction interne au plan fourni.
-export const A_TRANCHER = [
-  {
-    id: "reprise-haut-du-corps",
-    sujet: "Date de reprise du haut du corps après le trail",
-    constat:
-      "La phase R1 (27/09 → 04/10) est annoncée « zéro salle, repos quasi total », " +
-      "mais le tableau des délais dit « haut du corps à partir du 02/10 », " +
-      "qui tombe à l'intérieur de R1. PHASES applique la version la plus " +
-      "prudente : salle interdite jusqu'au 04/10 inclus.",
-    enAttente: true,
-  },
-];
+// Les séances de salle prévues ci-dessus datent du plan initial, qui fermait
+// la salle pendant tout le bloc course. Elles seront régénérées à partir de
+// SEMAINE_TYPE et des phases, maintenant que le haut du corps est ouvert.

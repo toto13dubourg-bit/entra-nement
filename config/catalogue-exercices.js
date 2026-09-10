@@ -55,19 +55,15 @@ export const CATALOGUE = [
     nomsHevy: ["Presse à Cuisses Horizontale"],
   },
   {
-    id: "leg-curl",
-    nom: "Leg curl",
+    id: "leg-curl-assis",
+    nom: "Leg curl assis",
     groupe: "jambes",
-    materiel: "Machine leg curl (broche)",
-    disponible: false, // À TRANCHER — voir note
+    materiel: "Machine leg curl assis (broche)",
+    disponible: true,
     charge: "totale",
-    pas: null,
+    pas: null, // à confirmer : cran réel de la colonne
     nomsHevy: [],
-    note:
-      "CONTRADICTION À TRANCHER : la liste du matériel mentionne une machine à " +
-      "leg curl, mais le programme dit « leg curl couché : n'existe pas dans " +
-      "cette salle, ne jamais le prescrire ». Mis à disponible:false par " +
-      "précaution. À rouvrir si la machine est un leg curl assis ou debout.",
+    note: "Leg curl ASSIS. Il n'y a pas de leg curl couché dans la salle.",
   },
   {
     id: "abducteurs",
@@ -468,8 +464,8 @@ export const CATALOGUE = [
 // MATÉRIEL ABSENT DE LA SALLE — confirmé le 09/09/2026.
 // Ne jamais proposer d'exercice qui en dépend :
 //   machine à pectoraux (développé assis, pec deck) · leg extension ·
-//   machine à mollets · banc pupitre · machine à tractions assistées ·
-//   machine à dips assistée.
+//   leg curl COUCHÉ (seul le leg curl assis existe) · machine à mollets ·
+//   banc pupitre · machine à tractions assistées · machine à dips assistée.
 //
 // Présent mais géré côté course, volontairement hors catalogue muscu :
 //   vélo · rameur · tapis de course.

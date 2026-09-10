@@ -9,14 +9,24 @@ export const SEANCES = {
   A: {
     id: "A",
     nom: "A — Poussée",
-    detail: "Pectoraux / triceps / épaules",
+    detail: "Pectoraux / épaules / triceps",
     lignes: [
-      { exercice: "developpe-couche-halteres", series: 4, reps: [8, 10], role: "principal" },
-      { exercice: "developpe-militaire-halteres", series: 3, reps: [8, 10], role: "secondaire" },
-      { exercice: "ecarte-poulie-haute", series: 3, reps: [10, 12], role: "isolation" },
-      { exercice: "elevations-laterales", series: 4, reps: [12, 15], role: "isolation" },
+      { exercice: "developpe-couche-halteres", series: 4, reps: [8, 10], role: "principal",
+        consigne: "Haltères plutôt que barre : meilleure amplitude, épaules protégées, plus sûr seul." },
+      { exercice: "dips", series: 3, reps: [8, 12], role: "principal",
+        alternative: "developpe-incline-halteres",
+        consigne: "Maximum à établir avant la première prescription. Si moins de 8 reps propres, basculer sur l'alternative." },
+      { exercice: "developpe-epaules-machine", series: 3, reps: [8, 10], role: "secondaire",
+        alternative: "developpe-militaire-halteres",
+        consigne: "La machine permet une progression au cran, plus régulière que les haltères en solo." },
+      { exercice: "elevations-laterales", series: 4, reps: [12, 15], role: "isolation",
+        consigne: "Léger, propre, jamais d'élan." },
       { exercice: "extension-triceps-overhead", series: 3, reps: [10, 12], role: "isolation" },
       { exercice: "planche", series: 3, reps: [40, 40], unite: "secondes", role: "gainage" },
+    ],
+    optionnel: [
+      { exercice: "ecarte-poulie-haute", series: 3, reps: [10, 12], role: "isolation",
+        consigne: "Si le temps le permet : étirement du pec, complément du développé." },
     ],
   },
 
@@ -25,7 +35,8 @@ export const SEANCES = {
     nom: "B — Tirage",
     detail: "Dos / biceps",
     lignes: [
-      { exercice: "tirage-vertical", series: 4, reps: [8, 10], role: "principal" },
+      { exercice: "tirage-vertical", series: 4, reps: [8, 10], role: "principal",
+        consigne: "Deviendra « tractions » quand le maximum sera établi. Pas de machine à tractions assistées dans la salle." },
       { exercice: "rowing-haltere", series: 4, reps: [10, 10], unite: "reps/bras", role: "principal" },
       { exercice: "tirage-horizontal", series: 3, reps: [10, 12], role: "secondaire" },
       { exercice: "curl-incline", series: 3, reps: [10, 12], role: "isolation" },
@@ -45,13 +56,19 @@ export const SEANCES = {
       { exercice: "squat-guide", series: 4, reps: [6, 8], role: "principal" },
       { exercice: "souleve-terre-roumain", series: 3, reps: [8, 10], role: "secondaire",
         consigne: "Descente 3 s, dos plat." },
-      { exercice: "presse-cuisses", series: 3, reps: [10, 12], role: "isolation" },
-      { exercice: "fentes-marchees", series: 3, reps: [10, 10], unite: "reps/jambe", role: "secondaire",
-        alternative: "split-squat-bulgare" },
+      { exercice: "presse-cuisses", series: 3, reps: [10, 12], role: "isolation",
+        consigne: "Volume quadriceps sans charge sur la colonne." },
+      { exercice: "leg-curl-assis", series: 3, reps: [10, 12], role: "isolation",
+        consigne: "Ischios. La machine existe : c'est un leg curl assis." },
       { exercice: "extension-mollet", series: 4, reps: [12, 15], role: "isolation",
-        consigne: "Descente lente 3 s." },
-      { exercice: "step-down", series: 2, reps: [10, 10], unite: "reps/jambe", role: "secondaire",
-        consigne: "3 s à la descente. À garder toute l'année." },
+        consigne: "Descente lente 3 s. Protège le tendon d'Achille." },
+      { exercice: "step-down", series: 3, reps: [10, 10], unite: "reps/jambe", role: "secondaire",
+        alternative: "fentes-marchees",
+        consigne: "3 s à la descente. Excentrique quadriceps : LA clé des descentes en trail. À garder toute l'année." },
+    ],
+    optionnel: [
+      { exercice: "abducteurs", series: 3, reps: [12, 15], role: "isolation",
+        consigne: "Moyen fessier : stabilité du genou sur les longues descentes." },
     ],
   },
 
@@ -87,29 +104,11 @@ export const SEMAINE_TYPE = {
   dimanche: { salle: null, course: "sortie-longue", note: "Séance clé de la semaine" },
 };
 
-// À TRANCHER — le programme place A le mardi et B le jeudi, mais le log Hevy
-// du mardi 08/09/2026 est une séance de tirage (B). Soit l'ordre a été inversé
-// durablement, soit c'était ponctuel. En attendant l'arbitrage de Thomas,
-// SEMAINE_TYPE suit le programme écrit.
-export const A_TRANCHER = [
-  {
-    id: "ordre-A-B",
-    sujet: "Ordre des séances A et B dans la semaine",
-    constat:
-      "Programme : A mardi, B jeudi. Réel du 08/09 (mardi) : séance de tirage, donc B.",
-    enAttente: true,
-  },
-  {
-    id: "increment-progression",
-    sujet: "Incrément de progression réel",
-    constat:
-      "La règle annoncée est +2,5 kg en haut du corps et +5 kg en bas du corps. " +
-      "Or aucun matériel de la salle ne permet ces pas : les haltères montent " +
-      "par 2 kg, les poulies par 2 kg, les barres par 2 × le plus petit disque. " +
-      "Le catalogue fait foi (champ « pas »), la règle des 2,5/5 kg est ignorée.",
-    enAttente: true,
-  },
-];
+// Pourquoi A le mardi et B le jeudi, et pas l'inverse : la séance C du lundi
+// contient le soulevé de terre roumain, qui sollicite le bas du dos. La séance
+// B contient le rowing, qui le sollicite aussi. Les espacer de trois jours
+// plutôt que d'un seul est le seul argument objectif — arbitré le 10/09/2026,
+// l'ordre n'ayant jamais été fixé auparavant.
 
 // MOTEUR DE PROGRESSION — machine à états déterministe.
 //
@@ -128,6 +127,11 @@ export const A_TRANCHER = [
 // L'incrément appliqué est TOUJOURS le champ « pas » du catalogue, c'est-à-dire
 // le cran réel de la machine. Si « pas » vaut null, aucune progression n'est
 // proposée et l'appli affiche pourquoi.
+//
+// Arbitré le 10/09/2026 : la règle « +2,5 kg haut du corps / +5 kg bas du
+// corps » est abandonnée, aucun matériel de la salle ne permettant ces pas.
+// Les haltères et les poulies montent par 2 kg, les barres par 2 × le plus
+// petit disque, les machines par leur cran de colonne.
 export const PROGRESSION = {
   modeParDefaut: "LINEAIRE",
   echecsAvantBascule: 2,
