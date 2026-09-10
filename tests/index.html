@@ -30,10 +30,20 @@
 <h2>Parseur COROS</h2>
 <ul id="coros"></ul>
 
+<h2>Parseur Hevy</h2>
+<ul id="hevy"></ul>
+
 <script type="module">
   import { executer } from "./executer.js";
   await import("./tests-coros.js");
-  window.resultats = await executer(document.getElementById("coros"));
+  const coros = await executer(document.getElementById("coros"));
+  await import("./tests-hevy.js");
+  const hevy = await executer(document.getElementById("hevy"));
+  window.resultats = {
+    total: coros.total + hevy.total,
+    reussis: coros.reussis + hevy.reussis,
+    echecs: [...coros.echecs, ...hevy.echecs],
+  };
 </script>
 
 </body>

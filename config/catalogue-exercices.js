@@ -126,10 +126,10 @@ export const CATALOGUE = [
     note: "Toujours en appui sur le banc, jamais penché libre : le bas du dos travaille déjà ailleurs." },
 
   { id: "tirage-horizontal", nom: "Tirage horizontal poulie (assis, buste calé)", groupe: "dos",
-    materiel: "poulie-horizontale", disponible: true, charge: "totale", nomsHevy: [] },
+    materiel: "poulie-horizontale", disponible: true, charge: "totale", nomsHevy: ["Rowing Poulie Assis - Prise en V"] },
 
   { id: "tirage-bras-tendus", nom: "Tirage bras tendus", groupe: "dos",
-    materiel: "poulie-reglable", disponible: true, charge: "totale", nomsHevy: [] },
+    materiel: "poulie-reglable", disponible: true, charge: "totale", nomsHevy: ["Tirage Poitrine Bras Tendus (Poulie)"] },
 
   { id: "rowing-barre", nom: "Rowing barre", groupe: "dos",
     materiel: "barre", disponible: true, charge: "ajoutee", nomsHevy: [] },
@@ -179,14 +179,14 @@ export const CATALOGUE = [
 
   // ----------------------------------------------------------------- BICEPS
   { id: "curl-incline", nom: "Curl haltères sur banc incliné", groupe: "biceps",
-    materiel: "halteres", disponible: true, charge: "totale", nomsHevy: [],
+    materiel: "halteres", disponible: true, charge: "totale", nomsHevy: ["Curl Pupitre (Machine)"],
     note: "Remplace le « curl pupitre » loggé le 08/09 : pas de banc pupitre, l'exercice était fait sur banc incliné." },
 
   { id: "curl-poulie", nom: "Curl biceps poulie", groupe: "biceps",
-    materiel: "poulie-reglable", disponible: true, charge: "totale", nomsHevy: [] },
+    materiel: "poulie-reglable", disponible: true, charge: "totale", nomsHevy: ["Curl Biceps (Poulie)"] },
 
   { id: "curl-marteau", nom: "Curl marteau (haltères)", groupe: "biceps",
-    materiel: "halteres", disponible: true, charge: "totale", nomsHevy: [] },
+    materiel: "halteres", disponible: true, charge: "totale", nomsHevy: ["Curl Marteau (Haltère)"] },
 
   { id: "curl-barre-w", nom: "Curl barre en W", groupe: "biceps",
     materiel: "barre-w", disponible: true, charge: "ajoutee", nomsHevy: [] },

@@ -37,11 +37,14 @@ export function mmss(secondes) {
   return h > 0 ? `${h}:${deuxChiffres(m)}:${deuxChiffres(r)}` : `${m}:${deuxChiffres(r)}`;
 }
 
+// Exécute les tests enregistrés depuis le dernier appel, puis vide la file.
+// C'est ce qui permet d'afficher chaque parseur dans sa propre section.
 export async function executer(cible) {
+  const aExecuter = cas.splice(0, cas.length);
   let reussis = 0;
   const echecs = [];
 
-  for (const c of cas) {
+  for (const c of aExecuter) {
     let ligne;
     try {
       await c.fn();
@@ -54,7 +57,7 @@ export async function executer(cible) {
     cible.insertAdjacentHTML("beforeend", ligne);
   }
 
-  const total = cas.length;
+  const total = aExecuter.length;
   const bilan = echecs.length === 0
     ? `<p class="bilan ok">${reussis} tests sur ${total} passent.</p>`
     : `<p class="bilan ko">${echecs.length} échec(s) sur ${total} tests.</p>`;
