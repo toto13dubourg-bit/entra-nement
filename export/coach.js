@@ -127,6 +127,25 @@ export function anomalies(etat, jours) {
     }
   }
 
+  // Séries en pyramide alors que la méthode retenue est la série droite.
+  // C'est un constat, pas une question : l'arbitrage a été rendu le 10/09.
+  const pyramides = [];
+  for (const s of etat.seancesSalle.filter((x) => jours.includes(x.date.slice(0, 10)))) {
+    for (const e of s.exercices) {
+      const charges = [...new Set(e.series.filter((x) => !x.echauffement).map((x) => x.chargeKg))];
+      if (charges.length > 1 && charges.every((c) => typeof c === "number")) {
+        const nom = e.exerciceId ? parId[e.exerciceId]?.nom || e.nomBrut : e.nomBrut;
+        pyramides.push(`${nom} (${charges.join(", ")} kg)`);
+      }
+    }
+  }
+  if (pyramides.length) {
+    trouvees.push(
+      `${pyramides.length} exercice(s) faits en pyramide alors que la méthode retenue est ` +
+        `la série droite : ${pyramides.join(" · ")}.`
+    );
+  }
+
   // Une séance faite alors que la phase l'interdisait.
   for (const s of etat.seancesSalle.filter((x) => jours.includes(x.date.slice(0, 10)))) {
     const verdict = salleAutorisee(s.date, s.seance);
@@ -383,27 +402,6 @@ export function questionsOuvertes(etat, jours) {
     if (typeof (c.saisie || {}).temperatureC !== "number") {
       q.push(`Température réelle non saisie pour la sortie du ${jourFr(c.date)}.`);
     }
-  }
-
-  // Séances faites en pyramide alors que le programme prescrit des séries
-  // droites. Une seule question, quel que soit le nombre d'exercices : c'est
-  // une décision de méthode, pas un cas par exercice.
-  const pyramides = [];
-  for (const s of etat.seancesSalle.filter((x) => jours.includes(x.date.slice(0, 10)))) {
-    for (const e of s.exercices) {
-      const charges = [...new Set(e.series.filter((x) => !x.echauffement).map((x) => x.chargeKg))];
-      if (charges.length > 1 && charges.every((c) => typeof c === "number")) {
-        const nom = e.exerciceId ? parId[e.exerciceId]?.nom || e.nomBrut : e.nomBrut;
-        pyramides.push(`${nom} (${charges.join(", ")} kg)`);
-      }
-    }
-  }
-  if (pyramides.length) {
-    q.push(
-      `${pyramides.length} exercices faits en pyramide alors que le programme prescrit ` +
-        `des séries droites : ${pyramides.join(" · ")}. Faut-il progresser sur la série ` +
-        `la plus lourde, ou passer en séries droites ?`
-    );
   }
 
   return q;

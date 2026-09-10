@@ -148,12 +148,15 @@ test("Questions — les machines sans cran relevé sont listées", () => {
   vrai(!q.some((x) => /Curl biceps poulie.*cran de la machine/.test(x)), "la poulie a son cran, pas de question");
 });
 
-test("Questions — les pyramides tiennent en une seule question", () => {
-  const q = questionsOuvertes(etatDeBase(), semaineDe("2026-09-13"));
-  const pyramides = q.filter((x) => /pyramide/.test(x));
-  egal(pyramides.length, 1, "une seule question pour les cinq exercices");
-  vrai(/5 exercices/.test(pyramides[0]), "elle en donne le nombre");
+test("Anomalie — les pyramides tiennent en une seule ligne", () => {
+  // La méthode retenue le 10/09 est la série droite : une pyramide est donc
+  // un écart constaté, plus une question ouverte.
+  const trouvees = anomalies(etatDeBase(), semaineDe("2026-09-13"));
+  const pyramides = trouvees.filter((x) => /pyramide/.test(x));
+  egal(pyramides.length, 1, "une seule ligne pour tous les exercices");
   vrai(/Curl marteau/.test(pyramides[0]), "elle les nomme");
+  const q = questionsOuvertes(etatDeBase(), semaineDe("2026-09-13"));
+  vrai(!q.some((x) => /pyramide/.test(x)), "ce n'est plus une question ouverte");
 });
 
 test("Questions — un nom Hevy non associé remonte", () => {

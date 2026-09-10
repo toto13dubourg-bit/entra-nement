@@ -1,95 +1,103 @@
-const VERSION = "0.1.0";
+// Point d'entrée : charge l'état, affiche l'écran demandé, gère la navigation.
 
-const lignes = [];
+import { creerDepot, etatSauvegarde } from "./stockage/depot.js";
+import { phaseDu, prochaineCourse } from "./moteur/phases.js";
+import { html, aujourdhui, jourCourt, message } from "./ui/base.js";
+import { rendreSemaine, brancherSemaine } from "./ui/semaine.js";
+import { rendreImport, brancherImport, reinitialiserImport } from "./ui/import.js";
+import { rendreCheckin, brancherCheckin } from "./ui/checkin.js";
+import { rendreProgres } from "./ui/progres.js";
+import { rendreSauvegarde, brancherSauvegarde } from "./ui/sauvegarde.js";
+import { rendreCoach, brancherCoach } from "./ui/coach.js";
+import { VERSION } from "./version.js";
 
-function ajouter(libelle, etat, detail) {
-  lignes.push({ libelle, etat, detail });
-  rendre();
+const ECRANS = {
+  semaine: { titre: "Ma semaine", rendre: rendreSemaine, brancher: brancherSemaine },
+  import: { titre: "Importer", rendre: rendreImport, brancher: brancherImport },
+  checkin: { titre: "Check-in", rendre: rendreCheckin, brancher: brancherCheckin },
+  progres: { titre: "Progrès", rendre: rendreProgres, brancher: null },
+  sauvegarde: { titre: "Sauvegarde", rendre: rendreSauvegarde, brancher: brancherSauvegarde },
+  coach: { titre: "Export coach", rendre: rendreCoach, brancher: brancherCoach },
+};
+
+const entete = document.getElementById("entete");
+const ecran = document.getElementById("ecran");
+
+let depot;
+let contexte;
+
+function demarrer() {
+  try {
+    depot = creerDepot(window.localStorage);
+    contexte = {
+      etat: depot.charger(),
+      jour: aujourdhui(),
+      aujourdhui: aujourdhui(),
+      enregistrer(nouvel) {
+        contexte.etat = depot.enregistrer(nouvel);
+      },
+      remplacer(texte) {
+        contexte.etat = depot.remplacer(texte);
+        return contexte.etat;
+      },
+    };
+  } catch (e) {
+    entete.innerHTML = `<h1>Entraînement</h1>`;
+    ecran.innerHTML = message("erreur", e.message);
+    return;
+  }
+
+  window.addEventListener("hashchange", () => {
+    reinitialiserImport();
+    afficher();
+  });
+  afficher();
 }
 
-function rendre() {
-  const symboles = { ok: "✓", ko: "✗", attente: "…" };
-  document.getElementById("diagnostic").innerHTML = lignes
-    .map(
-      (l) =>
-        `<li><span class="pastille ${l.etat}">${symboles[l.etat]}</span><span>${l.libelle}` +
-        (l.detail ? `<span class="detail">${l.detail}</span>` : "") +
-        `</span></li>`
-    )
-    .join("");
+function nomEcran() {
+  const nom = location.hash.replace("#", "") || "semaine";
+  return ECRANS[nom] ? nom : "semaine";
 }
 
-document.getElementById("version").textContent = VERSION;
+function afficher() {
+  const nom = nomEcran();
+  const vue = ECRANS[nom];
 
-const installee =
-  window.matchMedia("(display-mode: standalone)").matches ||
-  window.navigator.standalone === true;
+  entete.innerHTML = enteteHtml(vue.titre);
+  ecran.innerHTML = vue.rendre(contexte);
 
-ajouter(
-  installee ? "Ouverte depuis l'écran d'accueil" : "Ouverte dans le navigateur",
-  installee ? "ok" : "attente",
-  installee
-    ? "Le stockage est protégé de l'effacement automatique d'iOS."
-    : "Partage → Sur l'écran d'accueil, puis rouvre par l'icône."
-);
+  document.querySelectorAll("#navigation a").forEach((lien) => {
+    lien.classList.toggle("actif", lien.getAttribute("href") === `#${nom}`);
+  });
 
-ajouter(
-  location.protocol === "https:" || location.hostname === "localhost"
-    ? "Connexion sécurisée"
-    : "Connexion non sécurisée",
-  location.protocol === "https:" || location.hostname === "localhost" ? "ok" : "ko",
-  location.origin
-);
-
-let memoOk = false;
-try {
-  localStorage.setItem("__test__", "1");
-  localStorage.removeItem("__test__");
-  memoOk = true;
-} catch (e) {
-  memoOk = false;
+  if (vue.brancher) vue.brancher(ecran, contexte, afficher);
+  window.scrollTo(0, 0);
 }
-ajouter(
-  memoOk ? "Stockage local accessible" : "Stockage local bloqué",
-  memoOk ? "ok" : "ko",
-  memoOk ? null : "Navigation privée ? Le stockage y est désactivé."
-);
+
+function enteteHtml(titre) {
+  const phase = phaseDu(contexte.aujourdhui);
+  const suivante = prochaineCourse(contexte.aujourdhui);
+  const bilan = etatSauvegarde(contexte.etat, new Date().toISOString());
+
+  const morceaux = [];
+  if (phase) morceaux.push(html(phase.nom));
+  if (suivante) {
+    morceaux.push(
+      `<span class="compte-a-rebours">J−${suivante.joursRestants}</span> ` +
+        `${html(suivante.course.nom)} (${jourCourt(suivante.course.date)})`
+    );
+  }
+  if (bilan.necessaire) morceaux.push(`<a href="#sauvegarde" style="color:var(--alerte)">sauvegarde à faire</a>`);
+
+  return `<h1>${html(titre)}</h1>
+    <p class="contexte">${morceaux.join(" · ")}</p>`;
+}
 
 if ("serviceWorker" in navigator) {
-  ajouter("Mode hors ligne", "attente", "Installation en cours…");
-  const ligne = lignes[lignes.length - 1];
-  navigator.serviceWorker
-    .register("./sw.js")
-    .then(() => navigator.serviceWorker.ready)
-    .then(() => {
-      ligne.etat = "ok";
-      ligne.libelle = "Mode hors ligne actif";
-      ligne.detail = "Coupe le wifi et les données, puis recharge : la page doit s'afficher.";
-      rendre();
-    })
-    .catch((e) => {
-      ligne.etat = "ko";
-      ligne.libelle = "Mode hors ligne indisponible";
-      ligne.detail = String(e.message || e);
-      rendre();
-    });
-} else {
-  ajouter("Mode hors ligne indisponible", "ko", "Service worker non supporté par ce navigateur.");
-}
-
-const memo = document.getElementById("memo");
-const memoEtat = document.getElementById("memo-etat");
-
-if (memoOk) {
-  memo.value = localStorage.getItem("memo") || "";
-  memoEtat.textContent = memo.value
-    ? "Texte retrouvé au démarrage : la persistance fonctionne."
-    : "Rien en mémoire pour l'instant.";
-  memo.addEventListener("input", () => {
-    localStorage.setItem("memo", memo.value);
-    memoEtat.textContent = "Enregistré.";
+  navigator.serviceWorker.register("./sw.js").catch(() => {
+    // Le mode hors ligne est un confort : son absence ne bloque pas l'application.
   });
-} else {
-  memo.disabled = true;
-  memoEtat.textContent = "Stockage indisponible.";
 }
+
+console.log(`Entraînement ${VERSION}`);
+demarrer();

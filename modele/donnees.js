@@ -122,6 +122,9 @@ export function etatVide() {
     seancesSalle: [],
     checkins: [],
     progression: {},
+    // Séances cochées à la main, quand la donnée n'a pas encore été importée.
+    // Clé : "2026-09-09:course" ou "2026-09-09:salle".
+    coches: {},
     // Noms Hevy déjà associés à un exercice du catalogue.
     // Alimenté par Thomas à l'import, jamais deviné : { "Squat (Barre)": "squat-guide" }
     associationsHevy: {},
@@ -178,6 +181,12 @@ export function importerJson(texte) {
       throw new Error(`Sauvegarde incomplète : « ${cle} » est absent ou corrompu.`);
     }
   }
+
+  // Champs ajoutés après coup : une sauvegarde ancienne reste lisible.
+  etat.progression = etat.progression || {};
+  etat.associationsHevy = etat.associationsHevy || {};
+  etat.exportsCoach = etat.exportsCoach || [];
+  etat.coches = etat.coches || {};
 
   return etat;
 }

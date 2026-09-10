@@ -1,103 +1,361 @@
+/* Conçu pour être utilisé d'une main, en salle, entre deux séries.
+   Toutes les cibles tactiles font au moins 44 px. */
+
 :root {
   --fond: #0b1220;
   --carte: #141d2e;
+  --carte-haute: #1b2740;
   --bord: #23304a;
   --texte: #e8edf5;
   --attenue: #93a2bd;
   --accent: #a3e635;
+  --accent-sombre: #3f5314;
   --ok: #4ade80;
-  --ko: #f87171;
-  --attente: #fbbf24;
+  --alerte: #fbbf24;
+  --refus: #f87171;
+  --barre: 62px;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
   margin: 0;
-  padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+  padding: 0 0 calc(var(--barre) + env(safe-area-inset-bottom));
   background: var(--fond);
   color: var(--texte);
   font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   -webkit-text-size-adjust: 100%;
 }
 
-header { margin-bottom: 20px; }
+/* ------------------------------------------------------------- En-tête */
 
-h1 {
-  margin: 0;
-  font-size: 26px;
-  letter-spacing: -0.02em;
+#entete {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: max(14px, env(safe-area-inset-top)) 16px 12px;
+  background: var(--fond);
+  border-bottom: 1px solid var(--bord);
 }
 
-h2 {
-  margin: 0 0 6px;
-  font-size: 17px;
+#entete h1 { margin: 0; font-size: 21px; letter-spacing: -0.02em; }
+
+#entete .contexte { margin: 3px 0 0; color: var(--attenue); font-size: 13.5px; }
+
+#entete .compte-a-rebours { color: var(--accent); font-weight: 600; }
+
+main { padding: 14px 16px 20px; }
+
+/* ------------------------------------------------------------ Navigation */
+
+#navigation {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  height: calc(var(--barre) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: rgba(11, 18, 32, 0.94);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--bord);
 }
 
-.version {
-  margin: 2px 0 0;
+#navigation a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
   color: var(--attenue);
-  font-size: 13px;
+  text-decoration: none;
+  font-size: 11px;
 }
+
+#navigation a.actif { color: var(--accent); }
+
+.pictogramme { font-size: 17px; line-height: 1; }
+
+/* ---------------------------------------------------------------- Cartes */
 
 .carte {
   background: var(--carte);
   border: 1px solid var(--bord);
   border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
 }
 
-.aide {
-  margin: 0 0 10px;
+.carte h2 { margin: 0 0 4px; font-size: 16px; }
+.carte h3 { margin: 0 0 8px; font-size: 14px; color: var(--attenue); font-weight: 600; }
+
+.aide { margin: 0 0 12px; color: var(--attenue); font-size: 13.5px; }
+
+.vide {
+  padding: 28px 16px;
+  text-align: center;
   color: var(--attenue);
   font-size: 14px;
 }
 
-.diagnostic {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* -------------------------------------------------------------- Semaine */
+
+.barre-semaine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
-.diagnostic li {
+.barre-semaine .intitule {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  color: var(--attenue);
+}
+
+.jour { margin-bottom: 12px; }
+
+.jour > .entete-jour {
   display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0 2px 6px;
+  font-size: 13px;
+  color: var(--attenue);
+  text-transform: capitalize;
+}
+
+.jour.aujourdhui > .entete-jour { color: var(--accent); font-weight: 700; }
+
+.seance {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--carte);
+  border: 1px solid var(--bord);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.seance.refusee { opacity: 0.72; border-style: dashed; }
+
+.coche {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  margin-top: 1px;
+  border: 2px solid var(--bord);
+  border-radius: 9px;
+  background: transparent;
+  color: transparent;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.coche.faite {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0b1220;
+  font-weight: 800;
+}
+
+.corps-seance { flex: 1; min-width: 0; }
+
+.titre-seance {
+  display: flex;
+  justify-content: space-between;
   gap: 10px;
   align-items: baseline;
-  padding: 9px 0;
-  border-top: 1px solid var(--bord);
-  font-size: 15px;
+  font-size: 15.5px;
+  font-weight: 600;
 }
 
-.diagnostic li:first-child { border-top: 0; }
-
-.pastille {
+.etiquette {
   flex: 0 0 auto;
+  font-size: 11px;
   font-weight: 700;
-  width: 1.2em;
+  letter-spacing: 0.04em;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: var(--carte-haute);
+  color: var(--attenue);
 }
 
-.pastille.ok { color: var(--ok); }
-.pastille.ko { color: var(--ko); }
-.pastille.attente { color: var(--attente); }
+.etiquette.course { background: var(--accent-sombre); color: var(--accent); }
+.etiquette.faite { background: #14321f; color: var(--ok); }
+.etiquette.sautee { background: #3a1a1a; color: var(--refus); }
 
-.detail {
-  display: block;
-  color: var(--attenue);
+.sous-titre { margin: 3px 0 0; font-size: 13.5px; color: var(--attenue); }
+
+.motif-refus {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: rgba(248, 113, 113, 0.08);
+  color: var(--refus);
   font-size: 13px;
 }
 
-input[type="text"] {
+details summary {
+  margin-top: 8px;
+  color: var(--accent);
+  font-size: 13.5px;
+  cursor: pointer;
+  list-style: none;
+  padding: 4px 0;
+}
+
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: "▸ "; }
+details[open] summary::before { content: "▾ "; }
+
+.exercice {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  border-top: 1px solid var(--bord);
+  font-size: 14px;
+}
+
+.exercice .charge { flex: 0 0 auto; font-weight: 700; }
+.exercice .charge.inconnue { color: var(--alerte); font-weight: 600; font-size: 13px; }
+.exercice .prescription { color: var(--attenue); font-size: 12.5px; display: block; }
+.exercice .note { color: var(--alerte); font-size: 12.5px; display: block; margin-top: 3px; }
+
+/* ------------------------------------------------------- Formulaires */
+
+label { display: block; margin-bottom: 12px; font-size: 14px; color: var(--attenue); }
+
+label .obligatoire { color: var(--alerte); }
+
+input[type="text"], input[type="number"], input[type="date"], select, textarea {
+  display: block;
   width: 100%;
-  padding: 14px;
-  font-size: 17px;
+  margin-top: 5px;
+  padding: 13px;
+  font: inherit;
+  font-size: 17px; /* évite le zoom automatique d'iOS */
   color: var(--texte);
   background: var(--fond);
   border: 1px solid var(--bord);
-  border-radius: 10px;
+  border-radius: 11px;
 }
 
-input[type="text"]:focus {
+textarea { min-height: 84px; resize: vertical; }
+
+input:focus, select:focus, textarea:focus {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
+
+input[type="file"] {
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+  padding: 13px;
+  font-size: 14px;
+  color: var(--attenue);
+  background: var(--fond);
+  border: 1px dashed var(--bord);
+  border-radius: 11px;
+}
+
+.bouton {
+  display: block;
+  width: 100%;
+  min-height: 50px;
+  padding: 14px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0b1220;
+  background: var(--accent);
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.bouton.secondaire {
+  color: var(--texte);
+  background: var(--carte-haute);
+  border: 1px solid var(--bord);
+}
+
+.bouton:disabled { opacity: 0.45; }
+
+.boutons { display: flex; flex-direction: column; gap: 10px; }
+
+.compteur { display: flex; gap: 8px; margin-top: 5px; }
+
+.compteur button {
+  flex: 1;
+  min-height: 48px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--texte);
+  background: var(--fond);
+  border: 1px solid var(--bord);
+  border-radius: 11px;
+  cursor: pointer;
+}
+
+.compteur button.choisi {
+  color: #0b1220;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------------------------------------------------------- Messages */
+
+.message {
+  padding: 12px 14px;
+  border-radius: 11px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.message.succes { background: #14321f; color: var(--ok); }
+.message.erreur { background: #3a1a1a; color: var(--refus); }
+.message.attention { background: #3a2f11; color: var(--alerte); }
+
+.message ul { margin: 6px 0 0; padding-left: 18px; }
+
+/* ------------------------------------------------------------- Export */
+
+.texte-export {
+  margin: 0;
+  padding: 13px;
+  background: var(--fond);
+  border: 1px solid var(--bord);
+  border-radius: 11px;
+  font: 12.5px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--texte);
+  white-space: pre-wrap;
+  overflow-x: auto;
+  max-height: 46vh;
+}
+
+/* ------------------------------------------------------------ Progrès */
+
+.progres-ligne {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 11px 0;
+  border-top: 1px solid var(--bord);
+}
+
+.progres-ligne:first-of-type { border-top: 0; }
+
+.progres-ligne > span:last-child { flex: 0 0 auto; white-space: nowrap; }
+.progres-ligne .valeur { font-weight: 700; font-size: 15px; }
+.progres-ligne .mode { font-size: 11px; color: var(--attenue); display: block; text-align: right; }
+
+table.donnees { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.donnees th, table.donnees td { padding: 8px 6px; text-align: right; border-top: 1px solid var(--bord); }
+table.donnees th { color: var(--attenue); font-weight: 600; font-size: 12px; }
+table.donnees th:first-child, table.donnees td:first-child { text-align: left; }

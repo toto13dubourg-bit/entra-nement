@@ -213,6 +213,24 @@ test("Progression — les cinq machines à relever sont bien signalées", () => 
   }
 });
 
+test("Progression — au poids du corps, aucune charge n'est inventée", () => {
+  // Ton extension mollet du 07/09 : 4 × 12 au poids du corps. Le moteur ne
+  // doit surtout pas proposer « 2 kg » en ajoutant un cran à rien.
+  const etat = etatInitial("extension-mollet", null);
+  const auPoidsDuCorps = [{ reps: 12 }, { reps: 12 }, { reps: 12 }, { reps: 12 }];
+  const r = prochaineEtape(etat, auPoidsDuCorps, { series: 4, reps: [12, 15] });
+  egal(r.action, "maintenir", "action");
+  egal(r.etat.chargeKg, null, "aucune charge inventée");
+  vrai(/répétitions/.test(r.raison), `la raison parle de répétitions, obtenu : ${r.raison}`);
+});
+
+test("Progression — le lest arrive quand la fourchette haute est tenue", () => {
+  const etat = etatInitial("dips", null);
+  const r = prochaineEtape(etat, [{ reps: 12 }, { reps: 12 }, { reps: 12 }], { series: 3, reps: [8, 12] });
+  egal(r.etat.chargeKg, null, "toujours pas de charge");
+  vrai(/lest/.test(r.raison), "la raison mentionne le lest");
+});
+
 test("Progression — le plafond des haltères est respecté", () => {
   const etat = etatInitial("curl-marteau", 40);
   const r = prochaineEtape(etat, series(40, 12, 12, 12), LIGNE_3x10_12);

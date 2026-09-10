@@ -132,7 +132,12 @@ export const SEMAINE_TYPE = {
 // corps » est abandonnée, aucun matériel de la salle ne permettant ces pas.
 // Les haltères et les poulies montent par 2 kg, les barres par 2 × le plus
 // petit disque, les machines par leur cran de colonne.
+// Arbitré le 10/09/2026 : les séries de travail sont des SÉRIES DROITES —
+// même charge sur toutes les séries prescrites. La montée en charge se fait
+// en échauffement, pas en séries de travail. Les séances du 07 et 08/09
+// étaient en pyramide (16-18-20) ; ce n'est plus la méthode retenue.
 export const PROGRESSION = {
+  seriesDroites: true,
   modeParDefaut: "LINEAIRE",
   echecsAvantBascule: 2,
   rirCible: [2, 3],

@@ -172,6 +172,19 @@ export function prochaineEtape(etat, seriesRealisees, ligne) {
 }
 
 function monter(etat, charge, pas, fiche, ligne, evaluation, mode, info) {
+  // Au poids du corps, il n'y a aucune charge à incrémenter : la progression
+  // passe par les répétitions, puis par le lest.
+  if (charge === null) {
+    return {
+      action: "maintenir",
+      etat: { ...etat, chargeKg: null, mode, echecsConsecutifs: 0 },
+      evaluation,
+      raison:
+        `Au poids du corps : la progression se fait en répétitions. Ajoute du lest ` +
+        `quand tu tiens ${ligne.reps[1]} répétitions sur les ${ligne.series} séries.`,
+    };
+  }
+
   const nouvelle = charge + pas;
   const plafond = plafondDe(fiche);
 

@@ -15,26 +15,17 @@
 </head>
 <body>
 
-<header>
-  <h1>Entraînement</h1>
-  <p class="version">version <span id="version">—</span></p>
-</header>
+<header id="entete"></header>
+<main id="ecran"></main>
 
-<main>
-  <section class="carte">
-    <h2>Diagnostic d'installation</h2>
-    <p class="aide">Cette page vérifie que la chaîne technique fonctionne. Elle sera remplacée par l'application.</p>
-    <ul id="diagnostic" class="diagnostic"></ul>
-  </section>
+<nav id="navigation">
+  <a href="#semaine"><span class="pictogramme">▤</span>Semaine</a>
+  <a href="#import"><span class="pictogramme">↓</span>Import</a>
+  <a href="#checkin"><span class="pictogramme">◍</span>Check-in</a>
+  <a href="#progres"><span class="pictogramme">↗</span>Progrès</a>
+  <a href="#sauvegarde"><span class="pictogramme">▣</span>Sauver</a>
+</nav>
 
-  <section class="carte" id="bloc-stockage">
-    <h2>Test de persistance</h2>
-    <p class="aide">Écris quelque chose, ferme complètement l'app, rouvre-la. Le texte doit être encore là.</p>
-    <input id="memo" type="text" placeholder="Tape n'importe quoi ici" autocomplete="off">
-    <p class="aide" id="memo-etat">—</p>
-  </section>
-</main>
-
-<script src="./app.js"></script>
+<script type="module" src="./app.js"></script>
 </body>
 </html>

@@ -6,6 +6,7 @@
 
 import { etatVide, exporterJson, importerJson } from "../modele/donnees.js";
 import { SEANCES_SALLE_INITIALES } from "../config/donnees-initiales.js";
+import { appliquerSeanceSalle } from "../moteur/application.js";
 
 export const CLE = "entrainement:etat";
 export const RAPPEL_SAUVEGARDE_JOURS = 30;
@@ -49,10 +50,14 @@ export function creerDepot(stockage) {
   }
 
   // Au tout premier lancement, on injecte les séances que Thomas a saisies à
-  // la main, pour que le moteur de progression ait un point de départ réel.
+  // la main, puis on en déduit ses charges de départ : sans cela, tous les
+  // exercices s'afficheraient « à calibrer » alors qu'on les connaît.
   function premierLancement() {
-    const etat = etatVide();
+    let etat = etatVide();
     etat.seancesSalle = JSON.parse(JSON.stringify(SEANCES_SALLE_INITIALES));
+    for (const seance of etat.seancesSalle) {
+      etat = appliquerSeanceSalle(etat, seance).etat;
+    }
     enregistrer(etat);
     return etat;
   }
