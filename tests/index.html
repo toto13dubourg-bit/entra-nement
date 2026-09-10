@@ -33,16 +33,24 @@
 <h2>Parseur Hevy</h2>
 <ul id="hevy"></ul>
 
+<h2>Phases, progression et stockage</h2>
+<ul id="moteur"></ul>
+
 <script type="module">
   import { executer } from "./executer.js";
-  await import("./tests-coros.js");
-  const coros = await executer(document.getElementById("coros"));
-  await import("./tests-hevy.js");
-  const hevy = await executer(document.getElementById("hevy"));
+  const sections = [];
+  for (const [module, cible] of [
+    ["./tests-coros.js", "coros"],
+    ["./tests-hevy.js", "hevy"],
+    ["./tests-moteur.js", "moteur"],
+  ]) {
+    await import(module);
+    sections.push(await executer(document.getElementById(cible)));
+  }
   window.resultats = {
-    total: coros.total + hevy.total,
-    reussis: coros.reussis + hevy.reussis,
-    echecs: [...coros.echecs, ...hevy.echecs],
+    total: sections.reduce((t, s) => t + s.total, 0),
+    reussis: sections.reduce((t, s) => t + s.reussis, 0),
+    echecs: sections.flatMap((s) => s.echecs),
   };
 </script>
 
