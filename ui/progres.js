@@ -6,6 +6,7 @@ import { parId } from "../config/catalogue-exercices.js";
 import { efficienceAerobie, deriveCardiaque, tempsArretS } from "../parseurs/coros.js";
 import { stagnation } from "../moteur/progression.js";
 import { cranConnu } from "../moteur/phases.js";
+import { desequilibres, jamaisFaits } from "../moteur/volume.js";
 import { aujourdhui } from "./base.js";
 import { semaineDe } from "../export/coach.js";
 
@@ -13,8 +14,62 @@ export function rendreProgres(contexte) {
   const { etat } = contexte;
   return `
     ${chargesEnCours(etat)}
+    ${equilibreDuVolume(etat)}
+    ${exercicesJamaisFaits(etat)}
     ${volumeHebdomadaire(etat)}
     ${efficienceParType(etat)}`;
+}
+
+// ------------------------------------------- Équilibre entre groupes
+
+function equilibreDuVolume(etat) {
+  if (!etat.seancesSalle.length) return "";
+  const bilan = desequilibres(etat, aujourdhui());
+
+  return `<div class="carte">
+    <h2>Équilibre du volume</h2>
+    <p class="aide">
+      Séries de travail par groupe musculaire sur ${bilan.semaines} semaines,
+      comparées à ce que le programme prescrit. Les séries d'échauffement ne comptent pas.
+    </p>
+    <table class="donnees">
+      <tr><th>Groupe</th><th>Fait</th><th>Prescrit</th><th>Part</th></tr>
+      ${bilan.ecarts.map((e) => `<tr>
+        <td>${html(e.nom)}</td>
+        <td>${e.fait}</td>
+        <td>${e.attendu}</td>
+        <td${e.sousLeSeuil ? ' style="color:var(--alerte);font-weight:700"' : ""}>
+          ${Math.round(e.ratio * 100)} %
+        </td>
+      </tr>`).join("")}
+    </table>
+    ${bilan.ecarts.some((e) => e.sousLeSeuil)
+      ? `<p class="motif-refus" style="margin-top:10px">
+           ${bilan.ecarts.filter((e) => e.sousLeSeuil).map((e) => html(e.nom)).join(", ")} :
+           moins de la moitié du volume prescrit sur la période.
+         </p>`
+      : ""}
+  </div>`;
+}
+
+// ------------------------------------------ Exercices jamais réalisés
+
+function exercicesJamaisFaits(etat) {
+  if (!etat.seancesSalle.length) return "";
+  const manquants = jamaisFaits(etat);
+  if (!manquants.length) return "";
+
+  return `<div class="carte">
+    <h2>Prescrits, jamais faits</h2>
+    <p class="aide">
+      Ces exercices figurent au programme et n'ont jamais été enregistrés.
+      Ce n'est pas forcément un oubli : un exercice qu'on évite est une information.
+    </p>
+    ${manquants.map((m) => `<div class="progres-ligne">
+      <span>${html(m.nom)}</span>
+      <span class="mode">séance ${html(m.seance)}</span>
+    </div>`).join("")}
+  </div>`;
 }
 
 // -------------------------------------------------------------- Charges

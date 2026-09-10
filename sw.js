@@ -1,4 +1,4 @@
-const CACHE = "entrainement-1.1.0";
+const CACHE = "entrainement-1.2.0";
 
 const FICHIERS = [
   "./",
@@ -21,6 +21,7 @@ const FICHIERS = [
   "./moteur/phases.js",
   "./moteur/planning.js",
   "./moteur/progression.js",
+  "./moteur/volume.js",
   "./parseurs/coros.js",
   "./parseurs/hevy.js",
   "./stockage/depot.js",

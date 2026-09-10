@@ -26,6 +26,7 @@ import {
 } from "../parseurs/coros.js";
 import { chargeDeTravail } from "../moteur/progression.js";
 import { creneauxDeLaSemaine, conflitsDeLaSemaine } from "../moteur/planning.js";
+import { desequilibres, jamaisFaits } from "../moteur/volume.js";
 
 const JOURS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 
@@ -407,6 +408,24 @@ export function questionsOuvertes(etat, jours) {
   }
   for (const nom of sansCran) {
     q.push(`${nom} : cran de la machine non relevé, aucune progression ne peut être proposée.`);
+  }
+
+  // Groupes musculaires en retard sur le volume prescrit.
+  const bilan = desequilibres(etat, jours[6]);
+  for (const e of bilan.ecarts.filter((x) => x.sousLeSeuil)) {
+    q.push(
+      `${e.nom} : ${e.fait} séries faites sur ${e.attendu} prescrites en ` +
+        `${bilan.semaines} semaines. Faut-il ajuster le programme ou la semaine ?`
+    );
+  }
+
+  // Exercices prescrits jamais réalisés.
+  const absents = jamaisFaits(etat);
+  if (absents.length && etat.seancesSalle.length) {
+    q.push(
+      `Jamais fait à ce jour : ${absents.map((m) => m.nom).join(" · ")}. ` +
+        `Empêchement matériel, oubli, ou choix ?`
+    );
   }
 
   // Températures manquantes sur la semaine.

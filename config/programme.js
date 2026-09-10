@@ -250,6 +250,11 @@ export const PROGRESSION = {
   },
 
   // Signalement, pas décision : l'appli constate, le coach tranche.
+  // Un groupe musculaire dont le volume réalisé tombe sous cette fraction du
+  // volume prescrit est signalé. Fenêtre d'observation en semaines.
+  seuilDesequilibre: 0.5,
+  fenetreVolumeSemaines: 4,
+
   stagnationSemaines: 3,
   stagnationMessage:
     "Charge inchangée depuis 3 semaines. La cause est la récupération ou " +

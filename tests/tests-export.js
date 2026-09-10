@@ -159,6 +159,53 @@ test("Anomalie — les pyramides tiennent en une seule ligne", () => {
   vrai(!q.some((x) => /pyramide/.test(x)), "ce n'est plus une question ouverte");
 });
 
+test("Volume — le déséquilibre entre groupes est chiffré", async () => {
+  const { desequilibres, volumePrescrit } = await import("../moteur/volume.js");
+  const etat = etatDeBase();
+  const bilan = desequilibres(etat, "2026-09-13");
+
+  const prescrit = volumePrescrit();
+  vrai(prescrit.dos > 0 && prescrit.pecs > 0, "le programme prescrit du dos et des pecs");
+
+  // Sur les deux séances de départ, aucun exercice de pectoraux.
+  const pecs = bilan.ecarts.find((e) => e.groupe === "pecs");
+  egal(pecs.fait, 0, "aucune série de pectoraux réalisée");
+  egal(pecs.sousLeSeuil, true, "signalé sous le seuil");
+
+  const dos = bilan.ecarts.find((e) => e.groupe === "dos");
+  vrai(dos.fait > 0, `des séries de dos ont été faites, obtenu : ${dos.fait}`);
+});
+
+test("Volume — les exercices prescrits jamais faits sont listés", async () => {
+  const { jamaisFaits } = await import("../moteur/volume.js");
+  const manquants = jamaisFaits(etatDeBase()).map((m) => m.exerciceId);
+  vrai(manquants.includes("developpe-couche-halteres"), "développé couché jamais fait");
+  vrai(manquants.includes("face-pull"), "face pull jamais fait");
+  vrai(!manquants.includes("tirage-horizontal"), "le rowing du 08/09 ne doit pas y figurer");
+  vrai(!manquants.includes("squat-guide"), "le squat du 07/09 ne doit pas y figurer");
+});
+
+test("Volume — un échauffement ne compte pas dans le volume", async () => {
+  const { volumeRealise } = await import("../moteur/volume.js");
+  const etat = etatVide();
+  etat.seancesSalle = [{
+    date: "2026-09-10T18:00", seance: "B",
+    exercices: [{ exerciceId: "curl-incline", nomBrut: "x", series: [
+      { chargeKg: 20, reps: 12, echauffement: true },
+      { chargeKg: 18, reps: 10 },
+      { chargeKg: 18, reps: 10 },
+    ] }],
+    saisie: {},
+  }];
+  egal(volumeRealise(etat, "2026-09-01", "2026-09-30").biceps, 2, "deux séries de travail");
+});
+
+test("Questions — le retard de volume et les absents remontent au coach", () => {
+  const q = questionsOuvertes(etatDeBase(), semaineDe("2026-09-13"));
+  vrai(q.some((x) => /Pectoraux/.test(x) && /séries/.test(x)), "retard de volume signalé");
+  vrai(q.some((x) => /Jamais fait à ce jour/.test(x)), "exercices absents signalés");
+});
+
 test("Questions — un nom Hevy non associé remonte", () => {
   const etat = etatDeBase();
   etat.seancesSalle.push({
