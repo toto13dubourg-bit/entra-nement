@@ -277,14 +277,6 @@ export const SEANCES_COURSE_PREVUES = [
   { date: "2026-10-18", type: "course", titre: "10 KM", detail: "Objectif sub 42:00", course: "10km" },
 ];
 
-// SÉANCES DE SALLE PRÉVUES — état au 09/09/2026.
-export const SEANCES_SALLE_PREVUES = [
-  { date: "2026-09-07", seance: "C_legere", fait: true },
-  { date: "2026-09-08", seance: "B", fait: true },
-  { date: "2026-09-15", seance: "A", detail: "Haut du corps léger + gainage" },
-  { date: "2026-10-13", seance: "A", detail: "Haut du corps très léger, puis plus rien avant le 18/10" },
-];
-
-// Les séances de salle prévues ci-dessus datent du plan initial, qui fermait
-// la salle pendant tout le bloc course. Elles seront régénérées à partir de
-// SEMAINE_TYPE et des phases, maintenant que le haut du corps est ouvert.
+// Il n'y a pas de liste de séances de salle datées : elles se déduisent de
+// SEMAINE_TYPE et de la phase en cours. Une liste figée serait fausse dès la
+// première séance déplacée.

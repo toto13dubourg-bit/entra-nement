@@ -6,7 +6,7 @@ import { exportCoach } from "../export/coach.js";
 let retour = null;
 
 export function rendreCoach(contexte) {
-  const texte = exportCoach(contexte.etat, contexte.jour);
+  const texte = exportCoach(contexte.etat, contexte.jour, contexte.aujourdhui);
   const envois = contexte.etat.exportsCoach || [];
 
   return `

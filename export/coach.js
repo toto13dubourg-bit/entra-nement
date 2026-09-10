@@ -263,8 +263,11 @@ function sectionSalle(s, precedentes) {
 
 // ------------------------------------------------------------ L'EXPORT
 
-export function exportCoach(etat, aujourdhui) {
-  const jours = semaineDe(aujourdhui);
+// « semaineAffichee » désigne la semaine rapportée, « aujourdhui » la date
+// réelle : on peut préparer l'export d'une semaine passée sans que la date
+// du jour change pour autant.
+export function exportCoach(etat, semaineAffichee, aujourdhui = semaineAffichee) {
+  const jours = semaineDe(semaineAffichee);
   const phase = phaseDu(aujourdhui);
   const suivante = prochaineCourse(aujourdhui);
   const L = [];

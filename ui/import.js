@@ -20,11 +20,15 @@ export function reinitialiserImport() {
 }
 
 export function rendreImport() {
-  if (brouillon?.genre === "coros") return formulaireCoros();
-  if (brouillon?.genre === "hevy") return formulaireHevy();
+  // Le retour s'affiche sur TOUS les écrans de l'import : un refus au moment
+  // de valider doit se voir là où on est, pas seulement sur l'écran d'accueil.
+  const entete = retour ? message(retour.type, retour.texte, retour.details) : "";
+
+  if (brouillon?.genre === "coros") return entete + formulaireCoros();
+  if (brouillon?.genre === "hevy") return entete + formulaireHevy();
 
   return `
-    ${retour ? message(retour.type, retour.texte, retour.details) : ""}
+    ${entete}
     <div class="carte">
       <h2>Sortie course</h2>
       <p class="aide">Exporte le CSV depuis l'application COROS, puis choisis-le ici.</p>
@@ -264,6 +268,24 @@ function validerCoros(racine, contexte, rafraichir) {
   const temperature = racine.querySelector("#temperature").value;
   const type = racine.querySelector("#type").value;
 
+  // On mémorise d'abord toute la saisie : un refus ne doit jamais faire
+  // perdre ce qui vient d'être tapé.
+  const glucides = [];
+  racine.querySelectorAll("[data-aliment]").forEach((champ) => {
+    const quantite = Number(champ.value);
+    if (quantite > 0) glucides.push({ aliment: champ.dataset.aliment, quantite });
+  });
+
+  brouillon.saisie = {
+    ...brouillon.saisie,
+    type,
+    titre: racine.querySelector("#titre").value,
+    temperatureC: temperature === "" ? null : Number(temperature),
+    douleurs: racine.querySelector("#douleurs").value,
+    note: racine.querySelector("#note").value,
+    glucides,
+  };
+
   if (temperature === "") {
     retour = {
       type: "erreur",
@@ -280,25 +302,11 @@ function validerCoros(racine, contexte, rafraichir) {
     return;
   }
 
-  const glucides = [];
-  racine.querySelectorAll("[data-aliment]").forEach((champ) => {
-    const quantite = Number(champ.value);
-    if (quantite > 0) glucides.push({ aliment: champ.dataset.aliment, quantite });
-  });
-
   const seance = {
     ...brouillon.seance,
     id: `course-${brouillon.seance.date}`,
     source: { type: "coros", fichier: brouillon.seance.fichier },
-    saisie: {
-      ...brouillon.saisie,
-      type,
-      titre: racine.querySelector("#titre").value,
-      temperatureC: Number(temperature),
-      douleurs: racine.querySelector("#douleurs").value,
-      note: racine.querySelector("#note").value,
-      glucides,
-    },
+    saisie: brouillon.saisie,
   };
 
   const sansCelleCi = contexte.etat.seancesCourse.filter((s) => s.id !== seance.id);
@@ -313,6 +321,12 @@ function validerCoros(racine, contexte, rafraichir) {
 }
 
 function validerHevy(racine, contexte, rafraichir) {
+  brouillon.saisie = {
+    ...brouillon.saisie,
+    douleurs: racine.querySelector("#douleurs").value,
+    note: racine.querySelector("#note").value,
+  };
+
   const nonAssocies = brouillon.seance.exercices.filter((e) => !e.exerciceId);
   if (nonAssocies.length) {
     retour = {
@@ -330,11 +344,7 @@ function validerHevy(racine, contexte, rafraichir) {
     source: brouillon.seance.source,
     seance: brouillon.seanceId,
     exercices: brouillon.seance.exercices,
-    saisie: {
-      rir: brouillon.saisie.rir,
-      douleurs: racine.querySelector("#douleurs").value,
-      note: racine.querySelector("#note").value,
-    },
+    saisie: brouillon.saisie,
   };
 
   // Les associations faites une fois valent pour les prochains imports.
